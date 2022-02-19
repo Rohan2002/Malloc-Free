@@ -4,7 +4,10 @@
 
 
 typedef struct meta_data {
-    unsigned short data;
+    unsigned short block_size: 12; // block_size = payload_size + header_size
+    unsigned short nothing : 3;
+    unsigned short free: 1;
+    
 } t_meta_data;
 
 static char memory[MEM_SIZE]={255};
