@@ -94,11 +94,9 @@ void *mymalloc(size_t requested_size, char *file, int line)
             current_block_pointer += header_size;
             return (void *)current_block_pointer;
         }
-        else
-        {   
-            current_block_pointer += current_block_size;
-            index += current_block_size;
-        }
+        current_block_pointer += current_block_size;
+        index += current_block_size;
+        
     }
 }
 
