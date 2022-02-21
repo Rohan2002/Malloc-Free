@@ -76,6 +76,7 @@ void *old_mymalloc(size_t size, char *file, int line)
 
 void *new_mymalloc(size_t requested_size, char *file, int line)
 {
+
     if (init == 0)
     {
         t_meta_data *initial_header = (void *)memory;
@@ -278,7 +279,7 @@ void *newheader_mymalloc(size_t requested_size, char *file, int line)
 void print_implicit_free_list()
 {
     printf("-------------------------------------\n");
-    char *current = memory;
+    char *current = &memory[0];
     int number = 0;
     int index = 0;
     while (index < MEM_SIZE)
@@ -295,7 +296,7 @@ void print_implicit_free_list()
         printf("prev block size : %hu\n", metadata_of_current_block->prev_block_size);
         printf("prev block is free : %s\n", metadata_of_current_block->prev_free == 1 ? "yes" : "no");
 
-        printf("pointer of payload of start of the block: %p\n", current);
+        printf("Address of block: %p\n", current);
 
         index += chunk_size;
         current += chunk_size;
@@ -307,76 +308,77 @@ void print_implicit_free_list()
 
 void myfree(void *ptr, char *file, int line)
 {
+    // O(1) loop. Notice it will iterate until MEM_SIZE.
+    int mem_index;
+    for (mem_index = 0; mem_index < MEM_SIZE; mem_index++)
+    {
+        void *mem_add = &memory[mem_index];
+        if (mem_add == ptr)
+        {
+            break;
+        }
+    }
+
+    // handle address not found error.
+    if (mem_index == MEM_SIZE)
+    {
+        printf("Error: trying to free an invalid address.\n");
+        printf("Error in %s at line %d\n", file, line);
+        return;
+    }
+
+    // current node in free list
+    void *current_block_pointer = &memory[mem_index] - sizeof(header);
+    header *metadata_of_current_block_pointer = current_block_pointer;
+
+    if (metadata_of_current_block_pointer->free)
+    {
+        printf("Error: trying to free an invalid address.\n");
+        printf("Error in %s at line %d\n", file, line);
+        return;
+    }
+
+    // previous node in free list
+    void *prev_block_pointer = current_block_pointer - metadata_of_current_block_pointer->prev_block_size;
+    header *metadata_of_prev_block_pointer = prev_block_pointer;
+
+    // next node in free list
+    void *next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
+    header *metadata_of_next_block_pointer = next_block_pointer;
+
+    // Case 1: The previous and next blocks are both allocated. No coalescing.
+    if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free != 1)
+    {
+        printf("In case 1\n");
+        metadata_of_current_block_pointer->free = 1;
+    }
+
+    // Case 2: The previous block is allocated and the next block is free
+    else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1)
+    {
+        printf("In case 2\n");
+        metadata_of_current_block_pointer->free = 1;
+        metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
+        metadata_of_next_block_pointer->block_size = 0;
+    }
+    // Case 3: The previous block is free and the next block is allocated
+    else if (metadata_of_prev_block_pointer->free == 1 && metadata_of_next_block_pointer->free != 1)
+    {
+        printf("In case 3\n");
+        metadata_of_current_block_pointer->free = 1;
+        metadata_of_current_block_pointer->block_size += metadata_of_prev_block_pointer->block_size;
+        metadata_of_prev_block_pointer->block_size = 0;
+    }
+    // Case 4: The previous block is free and the next block is free
+    else
+    {
+        printf("In case 4\n");
+        metadata_of_current_block_pointer->free = 1;
+        metadata_of_current_block_pointer->block_size += metadata_of_prev_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
+        metadata_of_prev_block_pointer->block_size = 0;
+        metadata_of_next_block_pointer->block_size = 0;
+    }
 }
-// void myfree(void *ptr, char *file, int line)
-// {
-//     // memory array is not initialized
-//     // initlaize it with a free chunk of 4096 bytes
-//     if (memory[0] == 255)
-//     {
-
-//         // error
-//     }
-//     if (ptr < memory || ptr > memory + MEM_SIZE)
-//     {
-//         printf("Error: trying to free an invalid address.\n");
-//         printf("Error in %s at line %d\n", file, line);
-//         return;
-//     }
-//     t_meta_data *meta_data_header = (void *)memory;
-//     unsigned short free_bit = 1 << 15;
-
-//     char *current = memory;
-//     while (current != NULL)
-//     {
-//         if (current > ptr)
-//         {
-//             printf("Error: trying to free an invalid address.\n");
-//             printf("Error in %s at line %d\n", file, line);
-//             return;
-//         }
-//         t_meta_data *metadata_of_current_block = (void *)current;
-//         unsigned short chunk_size = metadata_of_current_block->block_size;
-//         unsigned short payload_size = metadata_of_current_block->block_size - sizeof(t_meta_data);
-//         unsigned short meta_data_free = 0;
-//         if (metadata_of_current_block->block_size >= free_bit)
-//         {
-//             meta_data_free = 1;
-//             payload_size -= free_bit;
-//             chunk_size -= free_bit;
-//         }
-//         if (current + sizeof(t_meta_data) == ptr)
-//         {
-
-//             if (meta_data_free == 0)
-//             {
-//                 metadata_of_current_block->block_size += free_bit;
-//                 return;
-//             }
-//             else
-//             {
-//                 printf("Error: trying to free an already freed address.\n");
-//                 printf("Error in %s at line %d\n", file, line);
-//                 return;
-//             }
-//         }
-
-//         if (current - memory + chunk_size >= MEM_SIZE)
-//         {
-//             current = NULL;
-//         }
-//         else
-//         {
-//             current += chunk_size;
-//         }
-//     }
-//     if (current > ptr)
-//     {
-//         printf("Error: trying to free an invalid address.\n");
-//         printf("Error in %s at line %d\n", file, line);
-//         return;
-//     }
-// }
 int main(int argc, char **argv)
 {
     printf("Memory's base address: %p\n", &memory[0]);
@@ -384,6 +386,7 @@ int main(int argc, char **argv)
     int *z2 = (int *)nh_malloc(4 * sizeof(int)); // 16, 20
     int *z3 = (int *)nh_malloc(6 * sizeof(int)); // 24, 28
     int *z4 = (int *)nh_malloc(11);              // 24, 28
+    int *z5 = (int *)nh_malloc(12);              // 12, 16
 
     *z1 = 10;
     *z2 = 11;
@@ -392,6 +395,10 @@ int main(int argc, char **argv)
     printf("Z1: Size %lu and address: %p and value: %d\n", sizeof(z1), z1, *z1);
     printf("Z2: Size %lu and address: %p and value: %d\n", sizeof(z2), z2, *z2);
     printf("Z3: Size %lu and address: %p and value: %d\n", sizeof(z3), z3, *z3);
+
+    print_implicit_free_list();
+
+    free(z3);
 
     print_implicit_free_list();
 }
