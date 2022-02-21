@@ -346,6 +346,20 @@ void myfree(void *ptr, char *file, int line)
     void *next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
     header *metadata_of_next_block_pointer = next_block_pointer;
 
+    // next to next node in free list
+    void *next_to_next_block_pointer = next_block_pointer + metadata_of_next_block_pointer->block_size;
+    header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+
+    printf("prev block pointer %p\n", prev_block_pointer);
+    printf("curr block pointer %p\n", current_block_pointer);
+    printf("next block pointer %p\n", next_block_pointer);
+    printf("next to next block pointer %p\n", next_to_next_block_pointer);
+
+    printf("next to next size %d\n", metadata_of_next_to_next_block_pointer->prev_block_size);
+
+    // selin, draw a diagram of the nodes and you will understand why I did these steps. 
+    // I'll explain on monday about my thought process.
+
     // Case 1: The previous and next blocks are both allocated. No coalescing.
     if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free != 1)
     {
@@ -357,26 +371,38 @@ void myfree(void *ptr, char *file, int line)
     else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1)
     {
         printf("In case 2\n");
-        metadata_of_current_block_pointer->free = 1;
+
+        // Take current block and set it to free and update current size with next_free block.
         metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
-        metadata_of_next_block_pointer->block_size = 0;
+        metadata_of_current_block_pointer->free = 1;
+
+        // Update prev size of next to next block pointer to current block size and update prev_free status to free.
+        metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
+        metadata_of_next_to_next_block_pointer->prev_free = 1;
+        
     }
     // Case 3: The previous block is free and the next block is allocated
     else if (metadata_of_prev_block_pointer->free == 1 && metadata_of_next_block_pointer->free != 1)
-    {
+    {  
         printf("In case 3\n");
-        metadata_of_current_block_pointer->free = 1;
-        metadata_of_current_block_pointer->block_size += metadata_of_prev_block_pointer->block_size;
-        metadata_of_prev_block_pointer->block_size = 0;
+        
+        // combine size: curr block size with prev block size
+        metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size;
+
+        // update prev_size and prev_free status of next_block_pointer
+        metadata_of_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
+        metadata_of_next_block_pointer->prev_free = 1;
     }
     // Case 4: The previous block is free and the next block is free
     else
     {
         printf("In case 4\n");
-        metadata_of_current_block_pointer->free = 1;
-        metadata_of_current_block_pointer->block_size += metadata_of_prev_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
-        metadata_of_prev_block_pointer->block_size = 0;
-        metadata_of_next_block_pointer->block_size = 0;
+        // combine size: prev block size with curr block size + next block size.
+        metadata_of_prev_block_pointer->block_size = metadata_of_current_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
+
+        // next to next.
+        metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
+        metadata_of_next_to_next_block_pointer->prev_free = 1;
     }
 }
 int main(int argc, char **argv)
@@ -385,7 +411,7 @@ int main(int argc, char **argv)
     int *z1 = (int *)nh_malloc(2 * sizeof(int)); // 8. 12
     int *z2 = (int *)nh_malloc(4 * sizeof(int)); // 16, 20
     int *z3 = (int *)nh_malloc(6 * sizeof(int)); // 24, 28
-    int *z4 = (int *)nh_malloc(11);              // 24, 28
+    int *z4 = (int *)nh_malloc(11);              // 11, 15
     int *z5 = (int *)nh_malloc(12);              // 12, 16
 
     *z1 = 10;
@@ -396,9 +422,21 @@ int main(int argc, char **argv)
     printf("Z2: Size %lu and address: %p and value: %d\n", sizeof(z2), z2, *z2);
     printf("Z3: Size %lu and address: %p and value: %d\n", sizeof(z3), z3, *z3);
 
-    print_implicit_free_list();
-
+    // print_implicit_free_list();
     free(z3);
-
+    printf("Freeing z3\n");
     print_implicit_free_list();
+
+    free(z2);
+    printf("Freeing z2\n");
+    print_implicit_free_list();
+
+    free(z5);
+    printf("Freeing z5\n");
+    print_implicit_free_list();
+
+    // free(z4);
+    // printf("Freeing z4\n");
+    // print_implicit_free_list();
+
 }
