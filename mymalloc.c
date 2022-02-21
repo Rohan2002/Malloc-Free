@@ -18,6 +18,8 @@ void *mymalloc(size_t requested_size, char *file, int line)
 
             initial_header->prev_block_size = 0;
             initial_header->prev_free = 1;
+
+            initial_header->last_node = 1;
         }
         init = 1;
     }
@@ -44,7 +46,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
             // set metadata to allocated.
             metadata_of_current_block->free = 0;
             metadata_of_current_block->block_size = requested_size;
-
+            metadata_of_current_block->last_node = 1;
             metadata_of_current_block->prev_block_size = prev_block_size;
             metadata_of_current_block->prev_block_size = prev_free;
 
@@ -65,7 +67,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
             // Fill header1
             metadata_of_current_block->block_size = requested_block_size;
             metadata_of_current_block->free = 0;
-
+            metadata_of_current_block->last_node = 0;
             metadata_of_current_block->prev_block_size = prev_block_size;
             metadata_of_current_block->prev_free = prev_free;
             /*
@@ -94,6 +96,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
             // Fill header2
             metadata_of_current_block->block_size = current_block_size - requested_block_size;
             metadata_of_current_block->free = 1;
+            metadata_of_current_block->last_node = 1;
 
             metadata_of_current_block->prev_block_size = requested_block_size;
             metadata_of_current_block->prev_free = 0;
@@ -131,7 +134,7 @@ void print_implicit_free_list()
         printf("curr block is free : %s\n", metadata_of_current_block->free == 1 ? "yes" : "no");
         printf("prev block size : %hu\n", metadata_of_current_block->prev_block_size);
         printf("prev block is free : %s\n", metadata_of_current_block->prev_free == 1 ? "yes" : "no");
-
+        printf("is last node: : %s\n", metadata_of_current_block->last_node == 1 ? "yes" : "no");
         printf("Address of block: %p\n", current);
 
         index += chunk_size;
