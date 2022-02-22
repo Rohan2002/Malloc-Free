@@ -213,41 +213,61 @@ void myfree(void *ptr, char *file, int line)
     }
 
     // Case 2: The previous block is allocated and the next block is free
-    else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1)
+    else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1 && next_node_exists) 
     {
         printf("In case 2\n");
 
         // Take current block and set it to free and update current size with next_free block.
         metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
         metadata_of_current_block_pointer->free = 1;
+        // whatever the last node of next pointer is stored into to the last node of current pointer
+        metadata_of_current_block_pointer->last_node =  metadata_of_next_block_pointer->last_node;
 
         // Update prev size of next to next block pointer to current block size and update prev_free status to free.
-        // metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
-        // metadata_of_next_to_next_block_pointer->prev_free = 1;
+        // check if next next exists, if so update its prev values
+        if (metadata_of_next_block_pointer->last_node != 1) {
+            void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
+            header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+            metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
+            metadata_of_next_to_next_block_pointer->prev_free = 1;
+        }
+        
+        
+        
 
     }
     // Case 3: The previous block is free and the next block is allocated
-    else if (metadata_of_prev_block_pointer->free == 1 && metadata_of_next_block_pointer->free != 1)
+    else if (metadata_of_prev_block_pointer->free == 1 && metadata_of_next_block_pointer->free != 1 && prev_node_exists)
     {
         printf("In case 3\n");
 
         // combine size: curr block size with prev block size
         metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size;
-
+        // whatever the last node of current pointer is stored into to the last node of prev pointer
+        metadata_of_prev_block_pointer->last_node = metadata_of_current_block_pointer->last_node;
         // update prev_size and prev_free status of next_block_pointer
         metadata_of_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
         metadata_of_next_block_pointer->prev_free = 1;
     }
     // Case 4: The previous block is free and the next block is free
-    else
+    else if (prev_node_exists && next_node_exists)
     {
         printf("In case 4\n");
         // combine size: prev block size with curr block size + next block size.
-        metadata_of_prev_block_pointer->block_size = metadata_of_current_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
+        metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
+        // whatever the last node of next pointer is stored into to the last node of prev pointer
+        metadata_of_prev_block_pointer->last_node =  metadata_of_next_block_pointer->last_node;
+
 
         // next to next.
-        // metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
-        // metadata_of_next_to_next_block_pointer->prev_free = 1;
+        // check if next next exists, if so update its prev values
+        if (metadata_of_next_block_pointer->last_node != 1) {
+            void *next_to_next_block_pointer = prev_block_pointer + metadata_of_prev_block_pointer->block_size;
+            header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+            metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
+            metadata_of_next_to_next_block_pointer->prev_free = 1;
+        }
+
     }
 }
 int main(int argc, char **argv)
@@ -270,13 +290,18 @@ int main(int argc, char **argv)
     printf("Z5: Size %lu and address: %p and value: %d\n", sizeof(z5), z5, *z5);
 
     print_implicit_free_list();
-    // free(z3);
-    // printf("Freeing z3\n");
-    // print_implicit_free_list();
 
-    // free(z2);
-    // printf("Freeing z2\n");
-    // print_implicit_free_list();
+    free(z3);
+    printf("Freeing z1\n");
+    print_implicit_free_list();
+
+    free(z5);
+    printf("Freeing z3\n");
+    print_implicit_free_list();
+
+    free(z4);
+    printf("Freeing z2\n");
+    print_implicit_free_list();
 
     // free(z5);
     // printf("Freeing z5\n");
