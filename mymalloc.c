@@ -175,7 +175,7 @@ void myfree(void *ptr, char *file, int line)
 
     if (metadata_of_current_block_pointer->free)
     {
-        printf("Error: trying to free an invalid address.\n");
+        printf("Error: trying to free the same block twice.\n");
         printf("Error in %s at line %d\n", file, line);
         return;
     }
@@ -243,6 +243,10 @@ void myfree(void *ptr, char *file, int line)
 
         // combine size: curr block size with prev block size
         metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size;
+        
+        // set current block to free
+        metadata_of_current_block_pointer->free = 1;
+        
         // whatever the last node of current pointer is stored into to the last node of prev pointer
         metadata_of_prev_block_pointer->last_node = metadata_of_current_block_pointer->last_node;
         // update prev_size and prev_free status of next_block_pointer
@@ -253,6 +257,9 @@ void myfree(void *ptr, char *file, int line)
     else if (prev_node_exists && next_node_exists)
     {
         printf("In case 4\n");
+        // set current block to free
+        metadata_of_current_block_pointer->free = 1;
+        
         // combine size: prev block size with curr block size + next block size.
         metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
         // whatever the last node of next pointer is stored into to the last node of prev pointer
