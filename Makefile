@@ -1,6 +1,6 @@
 TARGET     = $(file)
 CC         = clang
-SANITIZERS = -fsanitize=address
+SANITIZERS = -fsanitize=address $(if $(findstring clang,$(CC)),-fsanitize=undefined)
 OPT        =
 CFLAGS     = -g -std=c99 -Wall -Wvla -Werror $(SANITIZERS) $(OPT)
 

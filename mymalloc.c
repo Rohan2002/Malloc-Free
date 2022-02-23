@@ -283,29 +283,33 @@ int main(int argc, char **argv)
     *z2 = 11;
     *z3 = 12;
 
+    char *xyz = (char *)malloc(12);
+    xyz = "ro";
+
     printf("Z1: Size %lu and address: %p and value: %d\n", sizeof(z1), z1, *z1);
     printf("Z2: Size %lu and address: %p and value: %d\n", sizeof(z2), z2, *z2);
     printf("Z3: Size %lu and address: %p and value: %d\n", sizeof(z3), z3, *z3);
     printf("Z4: Size %lu and address: %p and value: %d\n", sizeof(z4), z4, *z4);
     printf("Z5: Size %lu and address: %p and value: %d\n", sizeof(z5), z5, *z5);
+    printf("xyz: Size %lu and address: %p and value: %d\n", sizeof(xyz), xyz, *xyz);
 
     print_implicit_free_list();
 
     free(z3);
-    printf("Freeing z1\n");
-    print_implicit_free_list();
-
-    free(z5);
     printf("Freeing z3\n");
     print_implicit_free_list();
 
-    free(z4);
-    printf("Freeing z2\n");
+    free(z5);
+    printf("Freeing z5\n");
     print_implicit_free_list();
 
-    // free(z5);
-    // printf("Freeing z5\n");
-    // print_implicit_free_list();
+    free(z4);
+    printf("Freeing z4\n");
+    print_implicit_free_list();
+
+    free(z5);
+    printf("Freeing z5\n");
+    print_implicit_free_list();
 
     // free(z4);
     // printf("Freeing z4\n");

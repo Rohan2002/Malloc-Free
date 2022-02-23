@@ -1,0 +1,69 @@
+
+10 file IO functions
+
+Open/Close/Read/Write/etc
+    -> implementation part of the OS kernel
+    -> actual implementation details are OS/hardware specific
+    -> typically involves a context switch
+        -> kernels run the highest permission level
+        -> may need to save and restore registers
+        -> may need to negotiate time with other processes
+
+
+we could req/send data one byte at a time using read/Write
+    -> but this is inefficient(so many context switches)!
+
+
+We can use buffer to collect bytes to write and send them all at once
+
+read and write are not buffered; we are responsible for buffering
+
+fread/fwrite/fscanf/fprintf/getc/putc are buffered
+    FILE STRUCT includes a byte array
+
+using putc() repeatedly will fill the buffer
+    once the buffer is full it is "flushed" (contents are sent using write)
+
+using getc() will pull bytes from the buffer
+    when buffer is emptym it calls read() the refull the buffer.
+
+fdopen() -> creates a FILE struct for an open file descriptor
+
+
+You can force a flush with fflush()
+
+-------------------------
+Blocking vs non-Blocking |
+-------------------------
+
+What happens If I request data that is not available?
+
+- We have to wait until data is available
+- we say that file IO blocks until data becomes available
+
+What about streams that are not files?
+- stdin, network sockets, ipc
+
+We can open files in Non blocking mode
+    - when I reuqest N bytes, I will get up to N bytes.
+    -> You should never assume that read() gives you as as many bytes as you asked for.
+
+but what if no data is available?
+    -> read can't return 0, because 0 means EOF
+
+In blocking mode, read() will block until data becomes available.
+    -> In non-blocking mode, read() will return an error -1(normally means "error")
+        and set errorno to EAGAIN or EWOULDBLOCK
+
+Non block IO
+- read() won't always give all bytes we asked for
+-always check for fewer bytes than requested 0 (EOF), -1 (error)
+
+---------|
+Directories
+----------
+
+Every file on disk has a number, called its "inode identifier"
+- most file will have a name (path)
+
+/dir1/dir2/dir3/fileordir
