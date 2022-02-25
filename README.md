@@ -52,3 +52,6 @@ and free everything in a different order.
 how can you detect metadata corruption?
 -   Sanity check functions/ detect corrupt metadata(where possible)
 -   shadow memory for testing
+
+
+10524-10549

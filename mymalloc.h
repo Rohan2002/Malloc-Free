@@ -16,7 +16,6 @@ typedef struct header_metadata
     unsigned int prev_free : 1; // free = 1, means its block is freed. free = 0 means its block is allocated.
 } header;
 
-static int init = 0;
 static char memory[MEM_SIZE] = {255};
 
 void *mymalloc(size_t size, char *file, int line);

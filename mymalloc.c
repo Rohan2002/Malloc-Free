@@ -3,27 +3,40 @@
 #include <string.h>
 #include <stdbool.h>
 
+int init = 0;
+void set_last_node()
+{
+    char *current = &memory[0];
+    int index = 0;
+
+    header *metadata_of_current_block = (void *)current;
+    while (index < MEM_SIZE)
+    {
+        metadata_of_current_block = (void *)current;
+        unsigned short chunk_size = metadata_of_current_block->block_size;
+
+        current += chunk_size;
+        index += chunk_size;
+    }
+    metadata_of_current_block->last_node = 1;
+}
 void *mymalloc(size_t requested_size, char *file, int line)
 {
-    if (init == 0)
+    header *initial_header = (void *)memory;
+    if (memory[0] == -1)
     {
-        header *initial_header = (void *)memory;
-        if (memory[0] == -1)
-        {
-            // Memset here is much cleaner: https://en.cppreference.com/w/cpp/string/byte/memset
-            memset(memory, 0, MEM_SIZE);
+        // Memset here is much cleaner: https://en.cppreference.com/w/cpp/string/byte/memset
+        memset(memory, 0, MEM_SIZE);
 
-            // Init initial_header with payload_size = 4096, free = 1
-            initial_header->block_size = MEM_SIZE;
-            initial_header->free = 1;
+        // Init initial_header with payload_size = 4096, free = 1
+        initial_header->block_size = MEM_SIZE;
+        initial_header->free = 1;
 
-            initial_header->prev_block_size = 0;
-            initial_header->prev_free = 1;
+        initial_header->prev_block_size = 0;
+        initial_header->prev_free = 1;
 
-            initial_header->first_node = 1;
-            initial_header->last_node = 1;
-        }
-        init = 1;
+        initial_header->first_node = 1;
+        initial_header->last_node = 1;
     }
 
     void *current_block_pointer = &memory[0]; // base address of memory.
@@ -51,8 +64,9 @@ void *mymalloc(size_t requested_size, char *file, int line)
             metadata_of_current_block->last_node = 1;
             metadata_of_current_block->prev_block_size = prev_block_size;
             metadata_of_current_block->prev_block_size = prev_free;
-
             current_block_pointer += header_size;
+
+            set_last_node();
             return current_block_pointer;
         }
         // split case
@@ -93,18 +107,22 @@ void *mymalloc(size_t requested_size, char *file, int line)
             */
 
             // Think of it like metadata_of_current_block = metadata_of_current_block->next;
-            metadata_of_current_block = current_block_pointer + requested_block_size;
+            void *next_pointer = current_block_pointer + metadata_of_current_block->block_size;
+            header *metadata_of_next_block = next_pointer;
+
+            int next_block_size = current_block_size - requested_block_size;
 
             // Fill header2
-            metadata_of_current_block->block_size = current_block_size - requested_block_size;
-            metadata_of_current_block->free = 1;
-            metadata_of_current_block->last_node = 1;
-            metadata_of_current_block->first_node = 0;
-            metadata_of_current_block->prev_block_size = requested_block_size;
-            metadata_of_current_block->prev_free = 0;
-
-            // push the current_block_pointer to the start of payload (NOT the header) in the block.
+            metadata_of_next_block->block_size = current_block_size - requested_block_size;
+            ;
+            metadata_of_next_block->free = 1;
+            metadata_of_next_block->last_node = 0;
+            metadata_of_next_block->first_node = 0;
+            metadata_of_next_block->prev_block_size = requested_block_size;
+            metadata_of_next_block->prev_free = 0;
             current_block_pointer += header_size;
+
+            set_last_node();
             return current_block_pointer;
         }
 
@@ -114,6 +132,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
         current_block_pointer += current_block_size;
         index += current_block_size;
     }
+    set_last_node();
     return NULL;
 }
 
@@ -138,7 +157,7 @@ void print_implicit_free_list()
         printf("prev block is free : %s\n", metadata_of_current_block->prev_free == 1 ? "yes" : "no");
         printf("is last node: : %s\n", metadata_of_current_block->last_node == 1 ? "yes" : "no");
         printf("is first node: : %s\n", metadata_of_current_block->first_node == 1 ? "yes" : "no");
-        printf("Address of block: %p\n", current);
+        printf("Address of block: %p\n", current + sizeof(header));
 
         index += chunk_size;
         current += chunk_size;
@@ -187,18 +206,18 @@ void myfree(void *ptr, char *file, int line)
     // next node in free list
     void *next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
     header *metadata_of_next_block_pointer = next_block_pointer;
-    
+
     // Selin, use these variables to check if prev_node and next_node addresses are valid.
-    
+
     // if the current pointer is not the first node then prev node exists.
     bool prev_node_exists = metadata_of_current_block_pointer->first_node != 1;
 
     // if the current pointer is not the last node then next node exists.
     bool next_node_exists = metadata_of_current_block_pointer->last_node != 1;
 
-    printf("prev block pointer %p and is valid %s\n", prev_block_pointer, prev_node_exists ? "yes": "no");
-    printf("curr block pointer %p\n", current_block_pointer);
-    printf("next block pointer %p and is valid %s\n", next_block_pointer, next_node_exists ? "yes" : "no");
+    // printf("prev block pointer %p and is valid %s\n", prev_block_pointer, prev_node_exists ? "yes": "no");
+    // printf("curr block pointer %p\n", current_block_pointer);
+    // printf("next block pointer %p and is valid %s\n", next_block_pointer, next_node_exists ? "yes" : "no");
 
     // printf("next to next size %d\n", metadata_of_next_to_next_block_pointer->prev_block_size);
 
@@ -208,45 +227,42 @@ void myfree(void *ptr, char *file, int line)
     // Case 1: The previous and next blocks are both allocated. No coalescing.
     if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free != 1)
     {
-        printf("In case 1\n");
+        // printf("In case 1\n");
         metadata_of_current_block_pointer->free = 1;
     }
 
     // Case 2: The previous block is allocated and the next block is free
-    else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1 && next_node_exists) 
+    else if (metadata_of_prev_block_pointer->free != 1 && metadata_of_next_block_pointer->free == 1 && next_node_exists)
     {
-        printf("In case 2\n");
+        //  printf("In case 2\n");
 
         // Take current block and set it to free and update current size with next_free block.
         metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
         metadata_of_current_block_pointer->free = 1;
         // whatever the last node of next pointer is stored into to the last node of current pointer
-        metadata_of_current_block_pointer->last_node =  metadata_of_next_block_pointer->last_node;
+        metadata_of_current_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
         // Update prev size of next to next block pointer to current block size and update prev_free status to free.
         // check if next next exists, if so update its prev values
-        if (metadata_of_next_block_pointer->last_node != 1) {
+        if (metadata_of_next_block_pointer->last_node != 1)
+        {
             void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
             header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
             metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
             metadata_of_next_to_next_block_pointer->prev_free = 1;
         }
-        
-        
-        
-
     }
     // Case 3: The previous block is free and the next block is allocated
     else if (metadata_of_prev_block_pointer->free == 1 && metadata_of_next_block_pointer->free != 1 && prev_node_exists)
     {
-        printf("In case 3\n");
+        // printf("In case 3\n");
 
         // combine size: curr block size with prev block size
         metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size;
-        
+
         // set current block to free
         metadata_of_current_block_pointer->free = 1;
-        
+
         // whatever the last node of current pointer is stored into to the last node of prev pointer
         metadata_of_prev_block_pointer->last_node = metadata_of_current_block_pointer->last_node;
         // update prev_size and prev_free status of next_block_pointer
@@ -256,69 +272,71 @@ void myfree(void *ptr, char *file, int line)
     // Case 4: The previous block is free and the next block is free
     else if (prev_node_exists && next_node_exists)
     {
-        printf("In case 4\n");
+        // printf("In case 4\n");
         // set current block to free
         metadata_of_current_block_pointer->free = 1;
-        
+
         // combine size: prev block size with curr block size + next block size.
         metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size + metadata_of_next_block_pointer->block_size;
         // whatever the last node of next pointer is stored into to the last node of prev pointer
-        metadata_of_prev_block_pointer->last_node =  metadata_of_next_block_pointer->last_node;
-
+        metadata_of_prev_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
         // next to next.
         // check if next next exists, if so update its prev values
-        if (metadata_of_next_block_pointer->last_node != 1) {
+        if (metadata_of_next_block_pointer->last_node != 1)
+        {
             void *next_to_next_block_pointer = prev_block_pointer + metadata_of_prev_block_pointer->block_size;
             header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
             metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
             metadata_of_next_to_next_block_pointer->prev_free = 1;
         }
-
     }
+
+    // current nodes size = MEM_SIZE - header_size.
 }
-int main(int argc, char **argv)
-{
-    printf("Memory's base address: %p\n", &memory[0]);
-    int *z1 = (int *)malloc(2 * sizeof(int)); // 8. 12
-    int *z2 = (int *)malloc(4 * sizeof(int)); // 16, 20
-    int *z3 = (int *)malloc(6 * sizeof(int)); // 24, 28
-    int *z4 = (int *)malloc(11);              // 11, 15
-    int *z5 = (int *)malloc(12);              // 12, 16
 
-    *z1 = 10;
-    *z2 = 11;
-    *z3 = 12;
+// int main(int argc, char **argv)
+// {
+//     printf("Memory's base address: %p\n", &memory[0]);
+//     int *z1 = (int *)malloc(2 * sizeof(int)); // 8. 12
+//     int *z2 = (int *)malloc(4 * sizeof(int)); // 16, 20
+//     int *z3 = (int *)malloc(6 * sizeof(int)); // 24, 28
+//     int *z4 = (int *)malloc(11);              // 11, 15
+//     int *z5 = (int *)malloc(12);              // 12, 16
 
-    char *xyz = (char *)malloc(12);
-    xyz = "ro";
+//     *z1 = 10;
+//     *z2 = 11;
+//     *z3 = 12;
 
-    printf("Z1: Size %lu and address: %p and value: %d\n", sizeof(z1), z1, *z1);
-    printf("Z2: Size %lu and address: %p and value: %d\n", sizeof(z2), z2, *z2);
-    printf("Z3: Size %lu and address: %p and value: %d\n", sizeof(z3), z3, *z3);
-    printf("Z4: Size %lu and address: %p and value: %d\n", sizeof(z4), z4, *z4);
-    printf("Z5: Size %lu and address: %p and value: %d\n", sizeof(z5), z5, *z5);
-    printf("xyz: Size %lu and address: %p and value: %d\n", sizeof(xyz), xyz, *xyz);
+//     char *xyz = (char *)malloc(12);
+//     xyz = "ro";
 
-    print_implicit_free_list();
+//     printf("Z1: Size %lu and address: %p and value: %d\n", sizeof(z1), z1, *z1);
+//     printf("Z2: Size %lu and address: %p and value: %d\n", sizeof(z2), z2, *z2);
+//     printf("Z3: Size %lu and address: %p and value: %d\n", sizeof(z3), z3, *z3);
+//     printf("Z4: Size %lu and address: %p and value: %d\n", sizeof(z4), z4, *z4);
+//     printf("Z5: Size %lu and address: %p and value: %d\n", sizeof(z5), z5, *z5);
+//     printf("xyz: Size %lu and address: %p and value: %d\n", sizeof(xyz), xyz, *xyz);
 
-    free(z3);
-    printf("Freeing z3\n");
-    print_implicit_free_list();
+//     print_implicit_free_list();
 
-    free(z5);
-    printf("Freeing z5\n");
-    print_implicit_free_list();
+//     free(z3);
+//     printf("Freeing z3\n");
+//     print_implicit_free_list();
 
-    free(z4);
-    printf("Freeing z4\n");
-    print_implicit_free_list();
+//     free(z5);
+//     printf("Freeing z5\n");
+//     print_implicit_free_list();
 
-    free(z5);
-    printf("Freeing z5\n");
-    print_implicit_free_list();
+//     free(z4);
+//     printf("Freeing z4\n");
+//     print_implicit_free_list();
 
-    // free(z4);
-    // printf("Freeing z4\n");
-    // print_implicit_free_list();
-}
+//     free(z5);
+//     printf("Freeing z5\n");
+//     print_implicit_free_list();
+
+//     // free(z4);
+//     // printf("Freeing z4\n");
+//     // print_implicit_free_list();
+// }
