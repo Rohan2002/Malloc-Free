@@ -58,7 +58,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
             return current_block_pointer;
         }
         // split case
-        else if (current_block_free == 1 && requested_block_size + sizeof(header) + 1 <= current_block_size)
+        else if (current_block_free == 1 && requested_block_size + header_size < current_block_size)
         {   
             printf("Requested blocksize: %d\n", requested_block_size);
             printf("Current block size: %d\n", current_block_size);
