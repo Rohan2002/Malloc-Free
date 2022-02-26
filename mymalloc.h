@@ -17,6 +17,7 @@ typedef struct header_metadata
 } header;
 
 static char memory[MEM_SIZE] = {255};
+extern int errorNoFree;
 
 void *mymalloc(size_t size, char *file, int line);
 void myfree(void *ptr, char *file, int line);

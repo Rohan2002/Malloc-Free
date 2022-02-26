@@ -3,6 +3,8 @@
 #include <string.h>
 #include <stdbool.h>
 
+int errorNoFree;
+
 void *mymalloc(size_t requested_size, char *file, int line)
 {
     if(requested_size == 0){
@@ -44,6 +46,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
         // same amount of demand
         if (current_block_free == 1 && requested_block_size == current_block_size)
         {
+            printf("Same amoumt of demand case: %d bytes\n", current_block_size);
             // set metadata to allocated.
             metadata_of_current_block->free = 0;
             //metadata_of_current_block->block_size = requested_size;
@@ -98,8 +101,6 @@ void *mymalloc(size_t requested_size, char *file, int line)
             void *next_pointer = current_block_pointer + metadata_of_current_block->block_size;
             header *metadata_of_next_block = next_pointer;
 
-            int next_block_size = current_block_size - requested_block_size;
-
             // Fill header2
             metadata_of_next_block->block_size = current_block_size - requested_block_size;
             ;
@@ -121,7 +122,6 @@ void *mymalloc(size_t requested_size, char *file, int line)
         current_block_pointer += current_block_size;
         index += current_block_size;
     }
-    set_last_node();
     return NULL;
 }
 
@@ -172,8 +172,9 @@ void myfree(void *ptr, char *file, int line)
     // handle address not found error.
     if (mem_index == MEM_SIZE)
     {
-        printf("Error: trying to free an invalid address.\n");
+        printf("Error: trying to free an invalid address %p.\n", &memory[mem_index]);
         printf("Error in %s at line %d\n", file, line);
+        errorNoFree = 1;
         return;
     }
 
@@ -183,8 +184,9 @@ void myfree(void *ptr, char *file, int line)
 
     if (metadata_of_current_block_pointer->free)
     {
-        printf("Error: trying to free the same block twice.\n");
+        printf("Error: trying to free the same block twice at address %p.\n", current_block_pointer);
         printf("Error in %s at line %d\n", file, line);
+        errorNoFree = 2;
         return;
     }
 
@@ -280,8 +282,7 @@ void myfree(void *ptr, char *file, int line)
             metadata_of_next_to_next_block_pointer->prev_free = 1;
         }
     }
-
-    // current nodes size = MEM_SIZE - header_size.
+    errorNoFree = 0;
 }
 // int main(int argc, char **argv)
 // {
