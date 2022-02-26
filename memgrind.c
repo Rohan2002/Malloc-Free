@@ -232,7 +232,7 @@ double test_6(){
     print_implicit_free_list();
     
     printf("Mallocing 30 + 4 chunk\n");
-    void* m5 = malloc(30); // 33 + 4 = 37
+    void* m5 = malloc(31); // 33 + 4 = 37
     print_implicit_free_list();
 
    return 1.0;
