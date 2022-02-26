@@ -3,23 +3,6 @@
 #include <string.h>
 #include <stdbool.h>
 
-int init = 0;
-void set_last_node()
-{
-    char *current = &memory[0];
-    int index = 0;
-
-    header *metadata_of_current_block = (void *)current;
-    while (index < MEM_SIZE)
-    {
-        metadata_of_current_block = (void *)current;
-        unsigned short chunk_size = metadata_of_current_block->block_size;
-
-        current += chunk_size;
-        index += chunk_size;
-    }
-    metadata_of_current_block->last_node = 1;
-}
 void *mymalloc(size_t requested_size, char *file, int line)
 {
     if(requested_size == 0){
@@ -63,13 +46,12 @@ void *mymalloc(size_t requested_size, char *file, int line)
         {
             // set metadata to allocated.
             metadata_of_current_block->free = 0;
-            metadata_of_current_block->block_size = requested_size;
-            metadata_of_current_block->last_node = 1;
-            metadata_of_current_block->prev_block_size = prev_block_size;
-            metadata_of_current_block->prev_block_size = prev_free;
+            //metadata_of_current_block->block_size = requested_size;
+            //metadata_of_current_block->last_node = 1;
+            //metadata_of_current_block->prev_block_size = prev_block_size;
+            //metadata_of_current_block->prev_block_size = prev_free;
             current_block_pointer += header_size;
 
-            set_last_node();
             return current_block_pointer;
         }
         // split case
@@ -84,6 +66,9 @@ void *mymalloc(size_t requested_size, char *file, int line)
             // header1 -> header2
 
             // Fill header1
+            int old_current_block_free_status = metadata_of_current_block->last_node;
+            // lastnode: 0
+
             metadata_of_current_block->block_size = requested_block_size;
             metadata_of_current_block->free = 0;
             metadata_of_current_block->last_node = 0;
@@ -119,13 +104,14 @@ void *mymalloc(size_t requested_size, char *file, int line)
             metadata_of_next_block->block_size = current_block_size - requested_block_size;
             ;
             metadata_of_next_block->free = 1;
-            metadata_of_next_block->last_node = 0;
+
+            metadata_of_next_block-> last_node = old_current_block_free_status;
+           // metadata_of_next_block->last_node = 0;
             metadata_of_next_block->first_node = 0;
             metadata_of_next_block->prev_block_size = requested_block_size;
             metadata_of_next_block->prev_free = 0;
             current_block_pointer += header_size;
 
-            set_last_node();
             return current_block_pointer;
         }
 

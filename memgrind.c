@@ -104,17 +104,48 @@ double test_three(){
        }
    }
 }
+double test_4(){
+    printf("Testing 50 and 25 byte allocation and release\n");
+    int *allocate_block_one =  (int *)malloc(50);
+    int *allocate_block_two =  (int *)malloc(25);
 
+    printf("Allocating 50, 25 byte blocks\n");
+    print_implicit_free_list();
+
+    printf("After freeing 50 byte blocks\n");
+    free(allocate_block_one);
+    // free(allocate_block_one);
+
+    // printf("After freeing 50 byte blocks\n");
+    print_implicit_free_list();
+
+    printf("Allocating 30 byte block\n");
+    int *allocate_block_three =  (int *)malloc(30);
+    print_implicit_free_list();
+
+    printf("Allocating 20 byte block\n");
+    int *allocate_block_four =  (int *)malloc(24);
+    print_implicit_free_list();
+
+     printf("After freeing 30 byte blocks\n");
+    free(allocate_block_three);
+    print_implicit_free_list();
+
+    printf("After freeing 25 byte blocks\n");
+    free(allocate_block_two);
+    print_implicit_free_list();
+}
 int main(int argv, char **argc)
 {
     // average time
     // double time_one = test_one();
     // double time_two = test_two();
-    double time_three = test_three();
+    // double time_three = test_three();
 
+    test_4();
     // printf("Time it took to run test_one: %f seconds\n", time_one);
     // printf("Time it took to run test_two: %f seconds\n", time_two);
-    printf("Time it took to run test_three: %f seconds\n", time_three);
+    // printf("Time it took to run test_three: %f seconds\n", time_three);
     
     return EXIT_SUCCESS;
 }
@@ -610,36 +641,6 @@ int main(int argv, char **argc)
 //     //     int *allocate_block = (int *)malloc(i);
 //     //     free(allocate_block);
 //     // }
-//     // print_implicit_free_list();
-
-//     // printf("Testing multiple of 3 chunk alloc and release\n");
-//     // int *allocate_block_one =  (int *)malloc(50);
-//     // int *allocate_block_two =  (int *)malloc(25);
-
-//     // printf("Allocating 50, 25 byte blocks\n");
-//     // print_implicit_free_list();
-
-//     // printf("After freeing 50 byte blocks\n");
-//     // free(allocate_block_one);
-//     // // free(allocate_block_one);
-
-//     // // printf("After freeing 50 byte blocks\n");
-//     // print_implicit_free_list();
-
-//     // printf("Allocating 30 byte block\n");
-//     // int *allocate_block_three =  (int *)malloc(30);
-//     // print_implicit_free_list();
-
-//     // printf("Allocating 20 byte block\n");
-//     // int *allocate_block_four =  (int *)malloc(24);
-//     // print_implicit_free_list();
-
-//     //  printf("After freeing 30 byte blocks\n");
-//     // free(allocate_block_three);
-//     // print_implicit_free_list();
-
-//     // printf("After freeing 25 byte blocks\n");
-//     // free(allocate_block_two);
 //     // print_implicit_free_list();
 
 // }
