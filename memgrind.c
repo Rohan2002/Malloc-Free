@@ -6,7 +6,7 @@
 #include <ctype.h>
 #include "mymalloc.h"
 
-unsigned int DEBUG = 0;
+unsigned int DEBUG = 1;
 
 double time_difference(struct timeval t1, struct timeval t2)
 {
@@ -17,6 +17,10 @@ double time_difference(struct timeval t1, struct timeval t2)
 
 double test_one()
 {
+    /*
+        Test 1:
+        Malloc, free, Malloc, free... 120 times
+    */
     int i = 0;
     double time_taken = 0;
     struct timeval t1, t2;
@@ -47,6 +51,11 @@ double test_one()
 
 double test_two()
 {
+        /*
+        Test 1:
+        Malloc 120 times
+        Free 120 times
+    */
     int i = 0;
     double time_taken = 0;
     struct timeval t1, t2;
@@ -77,16 +86,37 @@ double test_two()
     return time_difference(t1, t2);
 }
 
+double test_three(){
+    /*
+        malloc(120)
+        malloc(100)
+        free(120) // free space of 120 bytes
+        malloc()
+    */
+   for(int i = 120; i >= 1; i/=2){
+       void* add = malloc(i);
+       if(DEBUG){
+           printf("mallocing %d bytes and the address we get is %p\n", i, add);
+       }
+       free(add);
+       if(DEBUG){
+           printf("freeing %d bytes\n", i);
+       }
+   }
+}
+
 int main(int argv, char **argc)
 {
     // average time
-    double time_one = test_one();
-    double time_two = test_two();
+    // double time_one = test_one();
+    // double time_two = test_two();
+    double time_three = test_three();
 
-    printf("Time it took to run test_one: %f seconds\n", time_one);
-    printf("Time it took to run test_two: %f seconds\n", time_two);
+    // printf("Time it took to run test_one: %f seconds\n", time_one);
+    // printf("Time it took to run test_two: %f seconds\n", time_two);
+    printf("Time it took to run test_three: %f seconds\n", time_three);
     
-    return 0;
+    return EXIT_SUCCESS;
 }
 // double workloadA(){
 // int i = 0;

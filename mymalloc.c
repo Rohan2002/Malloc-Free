@@ -22,6 +22,9 @@ void set_last_node()
 }
 void *mymalloc(size_t requested_size, char *file, int line)
 {
+    if(requested_size == 0){
+        return NULL;
+    }
     header *initial_header = (void *)memory;
     if (memory[0] == -1)
     {
