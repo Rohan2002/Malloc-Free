@@ -297,7 +297,6 @@ void myfree(void *ptr, char *file, int line)
 
     // current nodes size = MEM_SIZE - header_size.
 }
-
 // int main(int argc, char **argv)
 // {
 //     printf("Memory's base address: %p\n", &memory[0]);
@@ -339,7 +338,7 @@ void myfree(void *ptr, char *file, int line)
 //     printf("Freeing z5\n");
 //     print_implicit_free_list();
 
-//     // free(z4);
-//     // printf("Freeing z4\n");
-//     // print_implicit_free_list();
+//      free(z4);
+//     printf("Freeing z4\n");
+//      print_implicit_free_list();
 // }
