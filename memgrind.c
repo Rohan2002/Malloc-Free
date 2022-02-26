@@ -164,40 +164,52 @@ double test_5(){
     gettimeofday(&t1, NULL);
 
     int count_malloc = 0;
+    int arraysize = 0 ; 
+
     while(count_malloc < MAX) {
         int random_bit = rand() % 2;
         if (random_bit == 1){
             // malloc 
             // 1, 1, 0
-            pointers[count_malloc] = malloc(1);
+            pointers[arraysize] = malloc(1);
             if(DEBUG){
                 printf("Malloced address %p at array index %d\n", pointers[count_malloc], count_malloc);
             }
             count_malloc++;
+            arraysize++;
+
         }
         else{
-
-            int random_index = rand() % (count_malloc); // [0,  119]
-            
-            free(pointers[random_index]);
-            if(errorNoFree == 1){
-                printf("Invalid address from test_5....\n");
-            }
-            if(errorNoFree == 2){
-                printf("Freeing the same address twice from test_5....\n");
-            }
-            
-            if(DEBUG){
-                printf("Freed address %p at array index %d\n", pointers[random_index], random_index);
-            }
-            if (errorNoFree == 0){
-                pointers[random_index] = 0;
+            if(arraysize >0){    
+                int random_index = rand() % (arraysize); // [0,  119]
+                void *tmp = pointers[random_index];
+                pointers[random_index] = pointers[arraysize-1];
+                pointers[arraysize-1] = tmp;
+                free(pointers[arraysize-1]);
+                //free(pointers[random_index]);
+                if(errorNoFree == 1){
+                    printf("Invalid address from test_5....\n");
+                }
+                if(errorNoFree == 2){
+                    printf("Freeing the same address twice from test_5....\n");
+                }
+                
+                if(DEBUG){
+                    printf("Freed address %p at array index %d\n", pointers[random_index], random_index);
+                }
+                if (errorNoFree == 0){
+                    pointers[arraysize-1] = 0;
+                    arraysize--;
+                }
             }
         }
+            
+
+        
     }
 
     // free all remaining allocated chunks.
-    for(int i =0; i < MAX; i++){
+    for(int i =0; i < arraysize; i++){
         if(pointers[i] != 0){
             free(pointers[i]);
             if(DEBUG){
@@ -210,34 +222,34 @@ double test_5(){
     return time_difference(t1, t2);
 
 }
-double test_6(){
-    /*
-        Test out allocating in free blocks.
-    */
-   void* m1 = malloc(50);
-   void* m2 = malloc(75);
-   void* m3 = malloc(150);
+// double test_6(){
+//     /*
+//         Test out allocating in free blocks.
+//     */
+//    void* m1 = malloc(50);
+//    void* m2 = malloc(75);
+//    void* m3 = malloc(150);
    
-    print_implicit_free_list();
+//     print_implicit_free_list();
 
-     printf("Freeing m2 chunk\n");
-    free(m2);
-    print_implicit_free_list();
+//      printf("Freeing m2 chunk\n");
+//     free(m2);
+//     print_implicit_free_list();
     
-    int block_one_size = 75 / 2; // 37
-    int block_two_size =  75 - block_one_size ; // 75 - 37 = 38
+//     int block_one_size = 75 / 2; // 37
+//     int block_two_size =  75 - block_one_size ; // 75 - 37 = 38
     
-    printf("Mallocing 37 + 4 chunk\n");
-    void* m4 = malloc(block_one_size); // 37 + 4 = 41
-    print_implicit_free_list();
+//     printf("Mallocing 37 + 4 chunk\n");
+//     void* m4 = malloc(block_one_size); // 37 + 4 = 41
+//     print_implicit_free_list();
     
-    printf("Mallocing 30 + 4 chunk\n");
-    void* m5 = malloc(30); // 33 + 4 = 37
-    print_implicit_free_list();
+//     printf("Mallocing 33 +4 chunk\n");
+//     void* m5 = malloc(33); // 33 + 4 = 37
+//     print_implicit_free_list();
 
-   return 1.0;
+//    return 1.0;
    
-}
+// }
 int main(int argv, char **argc)
 {
     // average time
@@ -245,13 +257,13 @@ int main(int argv, char **argc)
     // double time_two = test_two();
     // double time_three = test_three();
     // double time_five = test_5();
-    double time_six = test_6();
+    double time_five = test_5();
    //  test_4();
     // printf("Time it took to run test_one: %f seconds\n", time_one);
     // printf("Time it took to run test_two: %f seconds\n", time_two);
     // printf("Time it took to run test_three: %f seconds\n", time_three);
     // printf("Time it took to run test_five: %f seconds\n", time_five);
-    printf("Time it took to run test_six: %f seconds\n", time_six);
+    printf("Time it took to run test_six: %f seconds\n", time_five);
     return EXIT_SUCCESS;
 }
 // double workloadA(){
