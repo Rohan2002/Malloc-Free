@@ -23,11 +23,11 @@ double test_one()
     */
     int i = 0;
     struct timeval t1, t2;
-    void *pointers[120];
+    void *pointers[150];
 
     gettimeofday(&t1, NULL);
 
-    for (i = 0; i < 120; i++)
+    for (i = 0; i < 150; i++)
     {
         void *add = (void *)malloc(1);
 
@@ -203,9 +203,7 @@ double test_5(){
                 }
             }
         }
-            
 
-        
     }
 
     // free all remaining allocated chunks.
@@ -220,7 +218,6 @@ double test_5(){
     }
     gettimeofday(&t2, NULL);
     return time_difference(t1, t2);
-
 }
 // double test_6(){
 //     /*
@@ -250,20 +247,30 @@ double test_5(){
 //    return 1.0;
    
 // }
+// mallocing in split case.
+// coalescing test case.
+/*
+    1. Prev and Next Allocated
+    2. Prev Allocated and Next is not Allocated
+        
+
+*/
+// error code test case.
+// 
 int main(int argv, char **argc)
 {
     // average time
-    // double time_one = test_one();
+    double time_one = test_one();
     // double time_two = test_two();
     // double time_three = test_three();
     // double time_five = test_5();
-    double time_five = test_5();
+   // double time_six = test_6();
    //  test_4();
-    // printf("Time it took to run test_one: %f seconds\n", time_one);
+    printf("Time it took to run test_one: %f seconds\n", time_one);
     // printf("Time it took to run test_two: %f seconds\n", time_two);
     // printf("Time it took to run test_three: %f seconds\n", time_three);
     // printf("Time it took to run test_five: %f seconds\n", time_five);
-    printf("Time it took to run test_six: %f seconds\n", time_five);
+    // printf("Time it took to run test_six: %f seconds\n", time_six);
     return EXIT_SUCCESS;
 }
 // double workloadA(){
