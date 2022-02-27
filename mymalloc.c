@@ -7,7 +7,8 @@ int errorNoFree;
 
 void *mymalloc(size_t requested_size, char *file, int line)
 {
-    if(requested_size == 0){
+    if (requested_size == 0)
+    {
         return NULL;
     }
     header *initial_header = (void *)memory;
@@ -46,7 +47,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
         // same amount of demand
         if (current_block_free == 1 && requested_block_size == current_block_size)
         {
-            printf("Same amoumt of demand case: %d bytes\n", current_block_size);
+            // printf("Same amoumt of demand case: %d bytes\n", current_block_size);
             // set metadata to allocated.
             metadata_of_current_block->free = 0;
             current_block_pointer += header_size;
@@ -102,8 +103,8 @@ void *mymalloc(size_t requested_size, char *file, int line)
             ;
             metadata_of_next_block->free = 1;
 
-            metadata_of_next_block-> last_node = old_current_block_free_status;
-           // metadata_of_next_block->last_node = 0;
+            metadata_of_next_block->last_node = old_current_block_free_status;
+            // metadata_of_next_block->last_node = 0;
             metadata_of_next_block->first_node = 0;
             metadata_of_next_block->prev_block_size = requested_block_size;
             metadata_of_next_block->prev_free = 0;
@@ -121,7 +122,8 @@ void *mymalloc(size_t requested_size, char *file, int line)
     return NULL;
 }
 
-void print_node(void* current){
+void print_node(void *current)
+{
     header *metadata_of_current_block = current;
     unsigned short chunk_size = metadata_of_current_block->block_size;
     unsigned short payload_size = chunk_size - sizeof(header);
@@ -205,26 +207,27 @@ void myfree(void *ptr, char *file, int line)
     // if the current pointer is not the last node then next node exists.
     bool next_node_exists = metadata_of_current_block_pointer->last_node != 1;
 
-    if(prev_node_exists && next_node_exists){
+    if (prev_node_exists && next_node_exists)
+    {
         bool prev_block_is_free = metadata_of_prev_block_pointer->free == 1;
         bool next_block_is_free = metadata_of_next_block_pointer->free == 1;
 
         // Case 1: The previous and next blocks are both allocated. No coalescing.
         if (!prev_block_is_free && !next_block_is_free)
         {
-            printf("In case 1\n");
+            // printf("In case 1\n");
             metadata_of_current_block_pointer->free = 1;
         }
 
         // Case 2: The previous block is allocated and the next block is free
         else if (!prev_block_is_free && next_block_is_free)
         {
-            printf("In case 2\n");
+            // printf("In case 2\n");
 
             // Take current block and set it to free and update current size with next_free block.
             metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
             metadata_of_current_block_pointer->free = 1;
-            
+
             // whatever the last node of next pointer is stored into to the last node of current pointer
             metadata_of_current_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
@@ -238,10 +241,7 @@ void myfree(void *ptr, char *file, int line)
         // Case 3: The previous block is free and the next block is allocated
         else if (prev_block_is_free && !next_block_is_free)
         {
-            printf("In case 3\n");
-            // printf("In case does next node exits? %d\n",next_node_exists);
-            // print_node(metadata_of_next_block_pointer);
-
+            // printf("In case 3\n");
             // set current block to free
             metadata_of_current_block_pointer->free = 1;
 
@@ -257,7 +257,7 @@ void myfree(void *ptr, char *file, int line)
         // Case 4: The previous block is free and the next block is free
         else
         {
-            printf("In case 4\n");
+            // printf("In case 4\n");
             // set current block to free
             metadata_of_current_block_pointer->free = 1;
 
@@ -273,26 +273,31 @@ void myfree(void *ptr, char *file, int line)
             metadata_of_next_to_next_block_pointer->prev_free = metadata_of_prev_block_pointer->free;
         }
     }
-    else if(prev_node_exists && !next_node_exists){
+    else if (prev_node_exists && !next_node_exists)
+    {
         // This means we are freeing the last node.
-        printf("Freeing the last node\n");
+
+        // printf("Freeing the last node\n");
         bool prev_node_is_free = metadata_of_prev_block_pointer->free == 1;
-        
+
         metadata_of_current_block_pointer->free = 1;
-        
-        if(prev_node_is_free){
+
+        if (prev_node_is_free)
+        {
             metadata_of_prev_block_pointer->block_size += metadata_of_current_block_pointer->block_size;
             metadata_of_prev_block_pointer->last_node = metadata_of_current_block_pointer->last_node;
         }
     }
-    else if(!prev_node_exists && next_node_exists){
+    else if (!prev_node_exists && next_node_exists)
+    {
         // This means we are freeing the first node.
-        printf("Freeing the first node\n");
+        // printf("Freeing the first node\n");
         bool next_node_is_free = metadata_of_next_block_pointer->free == 1;
 
         metadata_of_current_block_pointer->free = 1;
 
-        if(next_node_is_free){
+        if (next_node_is_free)
+        {
             metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
             metadata_of_current_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
@@ -302,7 +307,8 @@ void myfree(void *ptr, char *file, int line)
             metadata_of_next_to_next_block_pointer->prev_free = metadata_of_current_block_pointer->free;
         }
     }
-    else{
+    else
+    {
         // This means that linked list only has one node that is 4096 block size.
         metadata_of_current_block_pointer->free = 1;
     }
