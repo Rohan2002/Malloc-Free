@@ -8,6 +8,8 @@
         "mymalloc.h": "c",
         "ios": "c",
         "random": "c",
-        "*.tcc": "c"
+        "*.tcc": "c",
+        "initializer_list": "c",
+        "utility": "c"
     }
 }
