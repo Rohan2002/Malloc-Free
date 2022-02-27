@@ -398,6 +398,42 @@ double test_7(int pattern)
 
     return time_difference(t1, t2);
 }
+double  test_eight(){
+    struct timeval t1,t2;
+    gettimeofday(&t1,NULL);
+    for (int iteration=0; iteration<1000; iteration++) {
+        void * adresses[160];
+        int i=0;
+        for (int c=2048; c>=8; c=c/2) {
+            adresses[i] = malloc(c-4);
+            i++;
+        }
+        free(adresses[0]);
+        for (int c=8; c<=1024; c=c*2) {
+            int random_index = rand() % 2;
+            //printf("random_index :  %d\n",random_index);
+            if (random_index ==0 ) {
+                adresses[i] = malloc(c-4);
+            } else {
+                adresses[i] = malloc(c+4);
+            }
+            i++;
+        }
+        for (int ii=1;ii<i;ii++) {
+            if (adresses[ii]!=NULL)
+                free(adresses[ii]);
+
+        }
+
+
+    }
+
+//print_implicit_free_list();
+    gettimeofday(&t2,NULL);
+    return time_difference(t1,t2);
+
+}
+
 int main(int argv, char **argc)
 {
     // average time
@@ -406,20 +442,21 @@ int main(int argv, char **argc)
     // double time_three = test_three();
     // double time_five = test_5();
     // double time_six = test_6();
+     double time_eight = test_eight();
     //  test_4();
     // printf("Time it took to run test_one: %f seconds\n", time_one);
     // printf("Time it took to run test_two: %f seconds\n", time_two);
     // printf("Time it took to run test_three: %f seconds\n", time_three);
     // printf("Time it took to run test_five: %f seconds\n", time_five);
-    // printf("Time it took to run test_six: %f seconds\n", time_six);
+     printf("Time it took to run test_six: %f seconds\n", time_eight);
     
     // double time_seven_pattern_one = test_7(1);
     // double time_seven_pattern_two = test_7(2);
-    double time_seven_pattern_three = test_7(3);
+    //double time_seven_pattern_three = test_7(3);
     print_implicit_free_list();
     // printf("Time it took to run test seven part 1: %f seconds\n", time_seven_pattern_one);
     // printf("Time it took to run test seven part 2: %f seconds\n", time_seven_pattern_two);
-    printf("Time it took to run test seven part 3: %f seconds\n", time_seven_pattern_three);
+    //printf("Time it took to run test seven part 3: %f seconds\n", time_seven_pattern_three);
     return EXIT_SUCCESS;
 }
 // double workloadA(){
