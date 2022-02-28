@@ -1,6 +1,6 @@
 TARGET     = $(file1)
 CC         = clang
-SANITIZERS = -fsanitize=address
+SANITIZERS = -fsanitize=address 
 OPT        =
 CFLAGS     = -g -std=c99 -Wall -Wvla -Werror $(SANITIZERS) $(OPT)
 

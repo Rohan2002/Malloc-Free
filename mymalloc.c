@@ -142,6 +142,9 @@ void print_node(void *current)
     printf("prev block is free : %s\n", metadata_of_current_block->prev_free == 1 ? "yes" : "no");
     printf("is last node: : %s\n", metadata_of_current_block->last_node == 1 ? "yes" : "no");
     printf("is first node: : %s\n", metadata_of_current_block->first_node == 1 ? "yes" : "no");
+    printf("Address of block: %p\n", current);
+    printf("Address of payload: %p\n", current + sizeof(header));
+    printf("-------------------------------------\n");
 }
 void print_implicit_free_list()
 {
@@ -157,11 +160,9 @@ void print_implicit_free_list()
 
         printf("CHUNK #%d\n", number);
         print_node(current);
-        printf("Address of block: %p\n", current + sizeof(header));
 
         index += chunk_size;
         current += chunk_size;
-        printf("-------------------------------------\n");
     }
 
     printf("-------------------------------------\n");

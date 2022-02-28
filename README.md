@@ -27,12 +27,16 @@ Mymalloc and Myfree project
     1. We defined a function void ```*myfree(void* ptr, char* file, int line)``` that takes in 3 arguements in total. The first arguement specifies the pointer of the payload in memory that is to be freed, the second argument and third arguement specifies the filename.c and line number from where malloc was called by the client.
     2. First we check if the payload pointer is in memory by iterating through each element of memory less than or equal to 4096 times. The run time complexity of this search is ```O(1)``` because we are searching through a ```constant``` amount of memory. 
     3. If we don't find the address in memory then we can indicate an error saying that the address passed to memory is invalid.
-    4. If the address is valid and found in memory, but the metadata pointing to the address is already freed then we specify a double free error.
+    4. If the address is valid and found in memory, but the metadata pointing to the address indicates that it is freed (```free``` bit set to 1) then we throw a double free error because the free method is trying to free an already freed block.
     6. Since the metadata of each block of memory consist of the previous block size, previous free status, the current block size and the current free status, thus, we implement a ```boundary tag coalescing``` technique for constant time run time efficiency. 
-    7. There are 4 cases of coalescing that we took care off when we were designing our coalescing mechanism. Let's assume that the ```current_node``` exists and is the node that we want to free and we also that the previous and next metadata nodes also exist. 
-        -  To check if previous and next node exist, we check the ```first_node``` status and ```last_node``` status of the ```current_node``` 
-        First to check whether previous and next metadata node exist, we also stored whether each node is the ```first_node``` and ```last_node```. If the current node that we are freeing
-        Case 1: Assuming that the previous and next metadata nodes exist, 
+    7. There are 4 cases of coalescing that we took care off when we were designing our ```boundary tag coalescing``` mechanism. Let's assume that the ```current_node``` exists and is the node that we want to free then we also check if ```next_node``` and ```prev_node``` also exist. 
+        -  To check if previous and next node exist, we check the ```first_node``` status and ```last_node``` status from the ```current_node```'s metadata. 
+        - To check whether ```next_node``` and ```prev_node``` exist, we also stored whether each node is the ```first_node``` and ```last_node```. If the ```current_node```'s metadata indicates that the ```last_node=1``` then we can assume that the ```current_node``` is the last node else if ```last_node=0``` then we can assume that there exists a ```next_node```. Similarly, if the ```current_node```'s metadata indicates that the ```first_node=1``` then we can assume that the ```current_node``` is the first node else if ```first_node=0``` then we can assume that there exists a ```previous_node```.
+        - Now assuming we are freeing ```current_node``` and that ```previous_node``` and ```next_node``` exist, we handeled 4 cases of coalescing.
+            - ```Case 1```: ```previous_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0) and ```next_node``` allocated (i.e. its metadata's ```free``` bit is set to 0). We just set ```current_node``` to free by setting its ```metadata``` free status to 1.
+            - ```Case 2```: ```previous_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0) and ```next_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0). 
+
+4. ## Test
 
 
 4. ## Terminology
