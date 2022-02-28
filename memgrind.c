@@ -22,11 +22,11 @@ double test_one()
     */
     int i = 0;
     struct timeval t1, t2;
-    void *pointers[150];
+    void *pointers[120];
 
     gettimeofday(&t1, NULL);
 
-    for (i = 0; i < 150; i++)
+    for (i = 0; i < 120; i++)
     {
         void *add = (void *)malloc(1);
 
@@ -34,7 +34,7 @@ double test_one()
         // printf("malloced %p\n", pointers[i]);
 
         free(pointers[i]);
-        // iprintf("freed\n");
+        // printf("freed\n");
     }
 
     gettimeofday(&t2, NULL);

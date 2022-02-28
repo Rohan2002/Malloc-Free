@@ -29,14 +29,25 @@ Mymalloc and Myfree project
     3. If we don't find the address in memory then we can indicate an error saying that the address passed to memory is invalid.
     4. If the address is valid and found in memory, but the metadata pointing to the address indicates that it is freed (```free``` bit set to 1) then we throw a double free error because the free method is trying to free an already freed block.
     6. Since the metadata of each block of memory consist of the previous block size, previous free status, the current block size and the current free status, thus, we implement a ```boundary tag coalescing``` technique for constant time run time efficiency. 
-    7. There are 4 cases of coalescing that we took care off when we were designing our ```boundary tag coalescing``` mechanism. Let's assume that the ```current_node``` exists and is the node that we want to free then we also check if ```next_node``` and ```prev_node``` also exist. 
-        -  To check if previous and next node exist, we check the ```first_node``` status and ```last_node``` status from the ```current_node```'s metadata. 
-        - To check whether ```next_node``` and ```prev_node``` exist, we also stored whether each node is the ```first_node``` and ```last_node```. If the ```current_node```'s metadata indicates that the ```last_node=1``` then we can assume that the ```current_node``` is the last node else if ```last_node=0``` then we can assume that there exists a ```next_node```. Similarly, if the ```current_node```'s metadata indicates that the ```first_node=1``` then we can assume that the ```current_node``` is the first node else if ```first_node=0``` then we can assume that there exists a ```previous_node```.
-        - Now assuming we are freeing ```current_node``` and that ```previous_node``` and ```next_node``` exist, we handeled 4 cases of coalescing.
-            - ```Case 1```: ```previous_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0) and ```next_node``` allocated (i.e. its metadata's ```free``` bit is set to 0). We just set ```current_node``` to free by setting its ```metadata``` free status to 1.
-            - ```Case 2```: ```previous_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0) and ```next_node``` is allocated (i.e. its metadata's ```free``` bit is set to 0). 
+    7. There are 4 cases of coalescing that we took care off when we were designing our coalescing mechanism. Let's assume that the ```current_node``` exists and is the node that we want to free and we also that the previous and next metadata nodes also exist. 
+        -  To check if previous and next node exist, we check the ```first_node``` status and ```last_node``` status of the ```current_node``` 
+        First to check whether previous and next metadata node exist, we also stored whether each node is the ```first_node``` and ```last_node```. If the current node that we are freeing
+        Case 1: Assuming that the previous and next metadata nodes  exist, 
 
-4. ## Test
+#   Test Cases
+
+    Test 1
+In or first test case ```test_one``` we are allocating and immidieately freeing 120 times consequetively to see whether we can ```malloc(1)``` byte memory in the same space of the memory.  We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space.
+
+    Test 2
+
+In our second test case ```test_two``` we are first allocating ```malloc(1)``` byte memory 120 times and then free the allocated blocs until we deallocate all the allocations. We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space.
+
+    Test 3
+In our third test case we are allocating size of ```malloc(120)``` chunk of memory and then immideately dealloating the memory until the alloation of 120 division of 2 all the way to the one bit of allocation ```malloc(1)```.We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space. We have viewed that the allocation of the block memory updates after the block of memory have been freed beforehand.
+
+
+
 
 
 4. ## Terminology
