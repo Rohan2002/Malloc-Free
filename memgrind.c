@@ -206,15 +206,15 @@ double test_five()
             bool block_is_not_free = metadata_to_block_address->free != 1;
             
             if(block_is_not_free){
-                printf("----------------------------\n");
-                print_node(block_address);
-                printf("Before Free: Block address %p and payload adress: %p\n", block_address, payload_address);
+                // printf("----------------------------\n");
+                // print_node(block_address);
+                // printf("Before Free: Block address %p and payload adress: %p\n", block_address, payload_address);
                 
                 free(payload_address); // In the back-end it will compute the block_adress of that payload_address and free that block.
                 pointers[i] = 0;
                 
-                printf("After Free: Block address %p and payload adress: %p\n", block_address, payload_address);
-                printf("----------------------------\n");
+                // printf("After Free: Block address %p and payload adress: %p\n", block_address, payload_address);
+                // printf("----------------------------\n");
             }
         }
     }
@@ -382,27 +382,27 @@ int main(int argv, char **argc)
 
     int trials = 1;
 
-    // for(int i = 0; i < trials; i++){
-    //     time_one += test_one();
-    // }
-    // for(int i = 0; i < trials; i++){
-    //     time_two += test_two();
-    // }
-    // for(int i = 0; i < trials; i++){
-    //     time_three += test_three();
-    // }
     for(int i = 0; i < trials; i++){
-        time_four += test_four();
+        time_one += test_one();
     }
-    // for (int i = 0; i < trials; i++){
-    //     time_five += test_five();
+    for(int i = 0; i < trials; i++){
+        time_two += test_two();
+    }
+    for(int i = 0; i < trials; i++){
+        time_three += test_three();
+    }
+    // for(int i = 0; i < trials; i++){
+    //     time_four += test_four();
     // }
-    // for (int i = 0; i < trials; i++)
-    // {
-    //     time_six_one += test_six(1);
-    //     time_six_two += test_six(2);
-    //     time_six_three += test_six(3);
-    // }
+    for (int i = 0; i < trials; i++){
+        time_five += test_five();
+    }
+    for (int i = 0; i < trials; i++)
+    {
+        time_six_one += test_six(1);
+        time_six_two += test_six(2);
+        time_six_three += test_six(3);
+    }
      print_implicit_free_list();
     printf("Time it took to run test_one: %f seconds\n", time_one / trials);
     printf("Time it took to run test_two: %f seconds\n", time_two / trials);

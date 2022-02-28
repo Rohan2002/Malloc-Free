@@ -1,10 +1,8 @@
-TARGET     = $(file1)
-CC         = clang
 SANITIZERS = -fsanitize=address 
-OPT        =
-CFLAGS     = -g -std=c99 -Wall -Wvla -Werror $(SANITIZERS) $(OPT)
+CFLAGS     = -g -std=c99 -Wall -Wvla -Werror $(SANITIZERS)
 
-fc: gcc memgrind.c mymalloc.c -o mem && ./mem
+build: 
+	gcc $(CFLAGS) memgrind.c mymalloc.c -o mem.o && ./mem.o
 
 clean:
 	rm -rf $(TARGET) *.o *.a *.dylib *.dSYM
