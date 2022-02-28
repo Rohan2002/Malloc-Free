@@ -1,1 +1,0 @@
-void set_free_stat();

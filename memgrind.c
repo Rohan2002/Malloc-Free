@@ -155,7 +155,6 @@ double test_five()
             // malloc
             // 1, 1, 0
             pointers[arraysize] = malloc(1);
-            // printf("Malloced address %p at array index %d\n", pointers[count_malloc], count_malloc);
             count_malloc++;
             arraysize++;
         }
@@ -164,38 +163,24 @@ double test_five()
             if (arraysize > 0)
             {
                 int random_index = rand() % (arraysize);
-                void *tmp = pointers[random_index];
-                pointers[random_index] = pointers[arraysize - 1];
-                pointers[arraysize - 1] = tmp;
-                free(pointers[arraysize - 1]);
-                // free(pointers[random_index]);
-                if (errorNoFree == 1)
+                if (pointers[random_index] != 0)
                 {
-                    printf("Invalid address from test_5....\n");
-                }
-                if (errorNoFree == 2)
-                {
-                    printf("Freeing the same address twice from test_5....\n");
-                }
-
-                // printf("Freed address %p at array index %d\n", pointers[random_index], random_index);
-                if (errorNoFree == 0)
-                {
-                    pointers[arraysize - 1] = 0;
-                    arraysize--;
+                    free(pointers[random_index]);
+                    pointers[random_index] = 0;
                 }
             }
         }
     }
-
     // free all remaining allocated chunks.
-    for (int i = 0; i < arraysize; i++)
+    for (int i = 0; i < MAX; i++)
     {
         if (pointers[i] != 0)
         {
-            free(pointers[i]);
-            // printf("Freeing remaining address %p at index %d\n", pointers[i], i);
-            pointers[i] = 0;
+            header* metadata_pointer = pointers[i];
+            if(metadata_pointer->free != 1){
+                free(pointers[i]);
+                pointers[i] = 0;
+            }
         }
     }
     gettimeofday(&t2, NULL);
@@ -204,7 +189,7 @@ double test_five()
 double test_six(int pattern)
 {
     // coalescing test case.
-    int random_mem = rand() % MEM_SIZE;
+    int random_mem = 4; // rand() % MEM_SIZE;
 
     // malloc random_mem byte array chunks into 4096 byte space.
 
@@ -243,7 +228,7 @@ double test_six(int pattern)
     {
         // printf("The last block size that will be allocated is %d\n", last_block_size);
         // printf("Couldn't allocate last block\n");
-    }   
+    }
     else
     {
         // Store address at pointers[number_of_blocks - 1]
@@ -338,29 +323,14 @@ double test_six(int pattern)
             pointers[i] = 0;
             i += spacing;
         }
-        // Case2, Case3,Case4;
-        int left = 0;
-        int right = number_of_blocks - 1;
-        while (left < right)
+
+        // Case2, Case3, Case4;
+        for (int i = 0; i < number_of_blocks; i++)
         {
-            int rand_bit = rand() % 2;
-            if (rand_bit)
+            if (pointers[i] != 0)
             {
-                if (pointers[left] != 0)
-                {
-                    free(pointers[left]);
-                    pointers[left] = 0;
-                }
-                left += 1;
-            }
-            else
-            {
-                if (pointers[right] != 0)
-                {
-                    free(pointers[right]);
-                    pointers[right] = 0;
-                }
-                right -= 1;
+                free(pointers[i]);
+                pointers[i] = 0;
             }
         }
     }
@@ -382,20 +352,24 @@ int main(int argv, char **argc)
     double time_six_two = 0;
     double time_six_three = 0;
 
-    int trials = 50;
+    int trials = 100;
 
+    for(int i = 0; i < trials; i++){
+        time_one += test_one();
+        time_two += test_two();
+        time_three += test_three();
+        time_four += test_four();
+    }
+    for (int i = 0; i < trials; i++){
+        time_five += test_five();
+    }
     for (int i = 0; i < trials; i++)
     {
-        // time_one += test_one();
-        // time_two += test_two();
-        // time_three += test_three();
-        // time_four += test_four();
-        time_five += test_five();
-        // time_six_one += test_six(1);
-        // time_six_two += test_six(2);
-        // time_six_three += test_six(3);
+        time_six_one += test_six(1);
+        time_six_two += test_six(2);
+        time_six_three += test_six(3);
     }
-
+    print_implicit_free_list();
     printf("Time it took to run test_one: %f seconds\n", time_one / trials);
     printf("Time it took to run test_two: %f seconds\n", time_two / trials);
     printf("Time it took to run test_three: %f seconds\n", time_three / trials);
