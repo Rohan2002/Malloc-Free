@@ -18,7 +18,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
     //     printf("Error in %s at line %d\n", file, line);
     //     return NULL;
     // }
-    header *initial_header = &memory[0]; 
+    header *initial_header = (void*) memory;
     if (memory[0] == -1)
     {
         // Memset here is much cleaner: https://en.cppreference.com/w/cpp/string/byte/memset
@@ -127,7 +127,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
         index += current_block_size;
     }
     
-    printf("Error: can't allocate %d bytes because it exceeds more than the size of the available memory.\n");
+    printf("Error: can't allocate bytes because it exceeds more than the size of the available memory.\n");
     printf("Error in %s at line %d\n", file, line);
     return NULL;
 }
