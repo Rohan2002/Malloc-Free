@@ -13,11 +13,11 @@ void *mymalloc(size_t requested_size, char *file, int line)
         printf("Error in %s at line %d\n", file, line);
         return NULL;
     }
-    if(requested_size > MEM_SIZE - sizeof(header)){
-        printf("Exceeds available space.\n");
-        printf("Error in %s at line %d\n", file, line);
-        return NULL;
-    }
+    // if(requested_size > MEM_SIZE - sizeof(header)){
+    //     printf("Exceeds available space.\n");
+    //     printf("Error in %s at line %d\n", file, line);
+    //     return NULL;
+    // }
     header *initial_header = &memory[0]; 
     if (memory[0] == -1)
     {
