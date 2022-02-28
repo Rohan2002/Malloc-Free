@@ -135,7 +135,6 @@ double test_five()
         Randomly choose between
         • Allocating a 1-byte chunk and storing the pointer in an array
         • Deallocating one of the chunks in the array (if any)
-
         Repeat until you have called malloc() 120 times,
         then free all remaining allocated chunks.
     */
@@ -244,13 +243,10 @@ double test_six(int pattern)
         /*
             Pattern 1.
             Free bit status for sample memory: [0,0,0,0,0,0]
-
             [0,0,0,1,0,0]
-
             1. Free the middle bit. [0,0,0,1,0,0] (i.e case 1)
             2. Free all left bit. (i.e case 2)
                 - [0,0,0,1,0,0] -> [1,1,1,1,0,0]
-
             3. Free all the right bit. (i.e case 3)
                 - [0,0,1,0,0] -> [0,0,1,1,1]
         */
@@ -277,14 +273,12 @@ double test_six(int pattern)
         /*
             Pattern 2.
             Free bit status for sample memory: [0,0,0,0,0,0]
-
             1. Free every alternate bit (i.e case 1)
                 - [1,0,1,0,1,0]
             2. [1,0,1,0,1,0]
                 - [1, 0, 1, 0] (Case 4)
                 - [1, 0] (Freeing last node) bc next node doesn't exist.
                 - [1]
-
         */
         // Case1;
         for (int i = 0; i < number_of_blocks; i++)
@@ -310,7 +304,6 @@ double test_six(int pattern)
         /*
             Pattern 3.
             Free bit status for sample memory: [0,0,0,0,0,0]
-
             1. Free every non-adjancent bit with random spacing (Previous pattern had spacing as 1 because [1,0,1,0...]) (i.e case 1)
                 - [1,0,1,0,0,1,0,1,0,0,0,1]
         */

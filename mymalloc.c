@@ -7,11 +7,18 @@ int errorNoFree;
 
 void *mymalloc(size_t requested_size, char *file, int line)
 {
-    if (requested_size == 0)
+    if (requested_size <= 0)
     {
+        printf("Error: can't request a non-positive memory amount\n");
+        printf("Error in %s at line %d\n", file, line);
         return NULL;
     }
-    header *initial_header = (void *)memory;
+    if(requested_size > MEM_SIZE - sizeof(header)){
+        printf("Exceeds available space.\n");
+        printf("Error in %s at line %d\n", file, line);
+        return NULL;
+    }
+    header *initial_header = &memory[0]; 
     if (memory[0] == -1)
     {
         // Memset here is much cleaner: https://en.cppreference.com/w/cpp/string/byte/memset
@@ -119,6 +126,9 @@ void *mymalloc(size_t requested_size, char *file, int line)
         current_block_pointer += current_block_size;
         index += current_block_size;
     }
+    
+    printf("Error: can't allocate %d bytes because it exceeds more than the size of the available memory.\n");
+    printf("Error in %s at line %d\n", file, line);
     return NULL;
 }
 
