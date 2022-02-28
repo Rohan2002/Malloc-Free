@@ -127,8 +127,6 @@ void *mymalloc(size_t requested_size, char *file, int line)
         index += current_block_size;
     }
     
-    printf("Error: can't allocate bytes because it exceeds more than the size of the available memory.\n");
-    printf("Error in %s at line %d\n", file, line);
     return NULL;
 }
 
@@ -168,7 +166,6 @@ void print_implicit_free_list()
 
     printf("-------------------------------------\n");
 }
-
 void myfree(void *ptr, char *file, int line)
 {
     // O(1) loop. Notice it will iterate until MEM_SIZE.

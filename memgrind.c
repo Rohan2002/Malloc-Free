@@ -92,6 +92,7 @@ double test_three()
 }
 double test_four()
 {
+    // We are putt
     struct timeval t1, t2;
     gettimeofday(&t1, NULL);
     for (int iteration = 0; iteration < 1000; iteration++)
@@ -100,30 +101,45 @@ double test_four()
         int i = 0;
         for (int c = 2048; c >= 8; c = c / 2)
         {
-            adresses[i] = malloc(c - 4);
+            void* add =  malloc(c - 4);
+            if(add != NULL){
+                adresses[i] = add;
+            }
             i++;
         }
+        
         free(adresses[0]);
+
+        // Split the 2048 byte block (Special case of malloc)
+        /*
+            Available bytes 2048 bytes.
+
+            c - 4.
+
+            c = 8; 8 - 2040             c-4->4
+            c = 16; 8 - 16  - 2024      c-4->12
+            c = 32; 8 - 16 - 32 - 1968  c-4->28
+                                ...     c-4->1020 
+        */
         for (int c = 8; c <= 1024; c = c * 2)
         {
-            int random_index = rand() % 2;
-            // printf("random_index :  %d\n",random_index);
-            if (random_index == 0)
-            {
-
-                adresses[i] = malloc(c - 4);
+            void* add_minus_four = malloc(c - 4);
+            if(add_minus_four == NULL){
+                printf("We cannot split the 2048 byte anymore. C-4 Error %d bytes\n", c-4);
             }
-            else
-            {
-                adresses[i] = malloc(c + 4);
+            else{
+                adresses[i] = add_minus_four;
             }
             i++;
         }
+        
+        // break;
         for (int ii = 1; ii < i; ii++)
         {
-            if (adresses[ii] != NULL)
+            if (adresses[ii] != NULL){
                 free(adresses[ii]);
-        }
+            }
+        }    
     }
     gettimeofday(&t2, NULL);
     return time_difference(t1, t2);
@@ -226,7 +242,6 @@ double test_six(int pattern)
     if (allocate_last_block == NULL)
     {
         // printf("The last block size that will be allocated is %d\n", last_block_size);
-        // printf("Couldn't allocate last block\n");
     }
     else
     {
@@ -349,8 +364,14 @@ int main(int argv, char **argc)
 
     for(int i = 0; i < trials; i++){
         time_one += test_one();
+    }
+    for(int i = 0; i < trials; i++){
         time_two += test_two();
+    }
+    for(int i = 0; i < trials; i++){
         time_three += test_three();
+    }
+    for(int i = 0; i < trials; i++){
         time_four += test_four();
     }
     for (int i = 0; i < trials; i++){
