@@ -15,7 +15,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
     }
     if (requested_size + sizeof(header) > MEM_SIZE)
     {
-        printf("Exceeds available space. Requested size of %zu bytes must be less than %lu bytes.\n",requested_size, MEM_SIZE - sizeof(header));
+        printf("Exceeds available space. Requested size of %zu bytes must be less than %lu bytes.\n", requested_size, MEM_SIZE - sizeof(header));
         printf("Error in %s at line %d\n", file, line);
         return NULL;
     }
@@ -150,7 +150,7 @@ void print_node(void *current)
 void print_implicit_free_list()
 {
     printf("-------------------------------------\n");
-    char *current = &memory[0];
+    void *current = &memory[0];
     int number = 0;
     int index = 0;
     while (index < MEM_SIZE)
@@ -324,6 +324,17 @@ void myfree(void *ptr, char *file, int line)
     errorNoFree = 0;
 }
 
-bool check_for_memory_leak(){
-    
+bool program_is_free_of_memory_leaks()
+{
+    /*
+        There are multiple ways to check if a leak exist.
+
+        If there is more than one metadata node, then there is a memory leak.
+
+        However, there is only one node that has a block size of MEM_SIZE and it's free
+        and it's the only node in the implicit free list then all nodes have been freed.
+    */
+    void *current = &memory[0];
+    header *metadata_of_current_block = (void *)current;
+    return (metadata_of_current_block->block_size == MEM_SIZE && metadata_of_current_block->free && metadata_of_current_block->first_node && metadata_of_current_block->last_node);
 }

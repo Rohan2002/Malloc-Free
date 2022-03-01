@@ -81,74 +81,21 @@ double test_three()
     */
     struct timeval t1, t2;
     gettimeofday(&t1, NULL);
-    for (int i = 120; i >= 1; i /= 2)
+    for (int j = 0; j < 1000; j++)
     {
-        void *add = malloc(i);
-        // printf("mallocing %d bytes and the address we get is %p\n", i, add);
-        free(add);
-        // printf("freeing %d bytes\n", i);
+        for (int i = 120; i >= 1; i /= 2)
+        {
+            void *add = malloc(i);
+            // printf("mallocing %d bytes and the address we get is %p\n", i, add);
+            free(add);
+            // printf("freeing %d bytes\n", i);
+        }
     }
     gettimeofday(&t2, NULL);
 
     return time_difference(t1, t2);
 }
 double test_four()
-{
-    // We are putt
-    struct timeval t1, t2;
-    gettimeofday(&t1, NULL);
-    for (int iteration = 0; iteration < 1; iteration++)
-    {
-        void *adresses[160];
-        int i = 0;
-        for (int c = 2048; c >= 8; c = c / 2)
-        {
-            void* add =  malloc(c - 4);
-            if(add != NULL){
-                adresses[i] = add;
-            }
-            i++;
-        }
-        
-        free(adresses[0]);
-
-        // Split the 2048 byte block (Special case of malloc)
-        /*
-            Available bytes 2048 bytes.
-
-            c - 4.
-
-            c = 8; 8 - 2040             c-4->4
-            c = 16; 8 - 16  - 2024      c-4->12
-            c = 32; 8 - 16 - 32 - 1968  c-4->28
-                                ...     c-4->1020 
-        */
-        for (int c = 8; c <= 1024; c = c * 2)
-        {
-            void* add_minus_four = malloc(c - 4);
-            if(add_minus_four == NULL){
-                printf("We cannot split the 2048 byte anymore. C-4 Error %d bytes\n", c-4);
-            }
-            else{
-                adresses[i] = add_minus_four;
-            }
-            i++;
-            
-        }
-        print_implicit_free_list();
-        
-        for (int ii = 1; ii < i; ii++)
-        {
-            if (adresses[ii] != NULL){
-                free(adresses[ii]);
-            }
-        }    
-    }
-    gettimeofday(&t2, NULL);
-    return time_difference(t1, t2);
-}
-
-double test_five()
 {
     /*
         Randomly choose between
@@ -171,13 +118,15 @@ double test_five()
         int random_bit = rand() % 2;
         if (random_bit == 1)
         {
-            void* add = malloc(1);
-            if(add != NULL){
+            void *add = malloc(1);
+            if (add != NULL)
+            {
                 pointers[arraysize] = add;
                 count_malloc++;
                 arraysize++;
             }
-            else{
+            else
+            {
                 printf("Can't allocate mem");
             }
         }
@@ -190,7 +139,6 @@ double test_five()
                 {
                     free(pointers[random_index]);
                     pointers[random_index] = 0;
-                    
                 }
             }
         }
@@ -200,19 +148,20 @@ double test_five()
     {
         if (pointers[i] != 0)
         {
-            void* payload_address = pointers[i];
-            void* block_address = pointers[i] - sizeof(header);
-            header* metadata_to_block_address = block_address; 
+            void *payload_address = pointers[i];
+            void *block_address = pointers[i] - sizeof(header);
+            header *metadata_to_block_address = block_address;
             bool block_is_not_free = metadata_to_block_address->free != 1;
-            
-            if(block_is_not_free){
+
+            if (block_is_not_free)
+            {
                 // printf("----------------------------\n");
                 // print_node(block_address);
                 // printf("Before Free: Block address %p and payload adress: %p\n", block_address, payload_address);
-                
+
                 free(payload_address); // In the back-end it will compute the block_adress of that payload_address and free that block.
                 pointers[i] = 0;
-                
+
                 // printf("After Free: Block address %p and payload adress: %p\n", block_address, payload_address);
                 // printf("----------------------------\n");
             }
@@ -221,7 +170,7 @@ double test_five()
     gettimeofday(&t2, NULL);
     return time_difference(t1, t2);
 }
-double test_six(int pattern)
+double test_five(int pattern)
 {
     // coalescing test case.
     int random_mem = 4; // rand() % MEM_SIZE;
@@ -375,43 +324,46 @@ int main(int argv, char **argc)
     double time_two = 0;
     double time_three = 0;
     double time_four = 0;
-    double time_five = 0;
-    double time_six_one = 0;
-    double time_six_two = 0;
-    double time_six_three = 0;
+    double time_five_one = 0;
+    double time_five_two = 0;
+    double time_five_three = 0;
 
     int trials = 1;
 
-    for(int i = 0; i < trials; i++){
+    for (int i = 0; i < trials; i++)
+    {
         time_one += test_one();
-    }
-    for(int i = 0; i < trials; i++){
-        time_two += test_two();
-    }
-    for(int i = 0; i < trials; i++){
-        time_three += test_three();
-    }
-    // for(int i = 0; i < trials; i++){
-    //     time_four += test_four();
-    // }
-    for (int i = 0; i < trials; i++){
-        time_five += test_five();
     }
     for (int i = 0; i < trials; i++)
     {
-        time_six_one += test_six(1);
-        time_six_two += test_six(2);
-        time_six_three += test_six(3);
+        time_two += test_two();
     }
-     print_implicit_free_list();
+    for (int i = 0; i < trials; i++)
+    {
+        time_three += test_three();
+    }
+    for (int i = 0; i < trials; i++)
+    {
+        time_four += test_four();
+    }
+    for (int i = 0; i < trials; i++)
+    {
+        time_five_one += test_five(1);
+        time_five_two += test_five(2);
+        time_five_three += test_five(3);
+    }
+    bool has_leaks = program_is_free_of_memory_leaks();
+
+    printf("Program is free of memory leaks? %s\n", has_leaks ? "Yes" : "No");
+    print_implicit_free_list();
+
     printf("Time it took to run test_one: %f seconds\n", time_one / trials);
     printf("Time it took to run test_two: %f seconds\n", time_two / trials);
     printf("Time it took to run test_three: %f seconds\n", time_three / trials);
     printf("Time it took to run test_four: %f seconds\n", time_four / trials);
-    printf("Time it took to run test_five: %f seconds\n", time_five / trials);
-    printf("Time it took to run test_six pattern 1: %f seconds\n", time_six_one / trials);
-    printf("Time it took to run test_six pattern 2: %f seconds\n", time_six_two / trials);
-    printf("Time it took to run test_six pattern 3: %f seconds\n", time_six_three / trials);
+    printf("Time it took to run test_five pattern 1: %f seconds\n", time_five_one / trials);
+    printf("Time it took to run test_five pattern 2: %f seconds\n", time_five_two / trials);
+    printf("Time it took to run test_five pattern 3: %f seconds\n", time_five_three / trials);
 
     return EXIT_SUCCESS;
 }
