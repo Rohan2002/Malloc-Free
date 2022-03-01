@@ -29,9 +29,11 @@ void *mymalloc(size_t requested_size, char *file, int line)
         initial_header->block_size = MEM_SIZE;
         initial_header->free = 1;
 
+        // The previous node does not exist so we set the prev_block_size to 0.
         initial_header->prev_block_size = 0;
+        // it does not matter the state prev_free exist(set to 1) 
         initial_header->prev_free = 1;
-
+        //initially set to 1 since th first chunk's first_node = 1 and last_node = 1
         initial_header->first_node = 1;
         initial_header->last_node = 1;
     }
@@ -132,7 +134,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
 }
 
 void print_node(void *current)
-{
+{  
     header *metadata_of_current_block = current;
     unsigned short chunk_size = metadata_of_current_block->block_size;
     unsigned short payload_size = chunk_size - sizeof(header);
@@ -149,6 +151,11 @@ void print_node(void *current)
 }
 void print_implicit_free_list()
 {
+     /*
+    Prints every block of memory allocation that stores the structs payload_size, 
+    current block size, current block is free, previous block size,last node status, 
+    first node status, adress of the current block, and address of the current payload
+    */  
     printf("-------------------------------------\n");
     void *current = &memory[0];
     int number = 0;
@@ -159,7 +166,7 @@ void print_implicit_free_list()
         header *metadata_of_current_block = (void *)current;
         unsigned short chunk_size = metadata_of_current_block->block_size;
 
-        printf("CHUNK #%d\n", number);
+        printf("BLOCK #%d\n", number);
         print_node(current);
 
         index += chunk_size;
