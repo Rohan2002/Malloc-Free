@@ -89,8 +89,7 @@ void *mymalloc(size_t requested_size, char *file, int line)
                 because we don't have a t_meta_data "next" attribute.
 
                 The way I thought about this address computation.
-                Let me know what u think Selin.
-
+                
                 current_block
                     - block1 (allocated)
                         - header1

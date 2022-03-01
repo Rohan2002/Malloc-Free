@@ -1,5 +1,9 @@
 Mymalloc and Myfree project
 
+## Authors
+Rohan Deshpande: ryd4
+Selin Denise Altiparmak: sda81
+
 1. ## Metadata Structure: struct header
     1. Our metadata is a 4 byte or 32 bits block.
     2. We assigned each field in the metadata struct certain amount of bits and thus the total number of bits add up to 32 bits. (This type of data structure is called bit fields)
@@ -30,10 +34,11 @@ Mymalloc and Myfree project
     5. Since the metadata of each block of memory consist of the previous block size, previous free status, the current block size and the current free status, thus, we implement a ```boundary tag coalescing``` technique for constant time run time efficiency. 
     6. Short note: to compute the address of ```next_block_pointer``` or ```prev_block_pointer``` from the perspective of ```current_block_pointer```, we created a general formula for the address computation as follows: 
 
-        - ```prev_block_pointer = current_block_pointer - metadata_of_current_block_pointer->prev_block_size```
+    - ```prev_block_pointer = current_block_pointer metadata_of_current_block_pointer->prev_block_size```
     
-        - ```next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size```
+    - ```next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size```
     
+        We did this because each node in the implicit free list is seperated by the ```block_size``` field in the node.
 
     7. There are 4 cases of coalescing that we took care off when we were designing our ```boundary tag coalescing``` mechanism. Let's assume that the ```current_block_pointer``` exists in the implicit free list and is the node that is pointing to the memory location that we want to free. We also need the ```next_block_pointer``` and ```prev_block_pointer``` of the implicit free list from the perspective of the ```current_block_pointer``` also exist. 
         -  To check if previous and next node exist, we check the ```first_node``` status and ```last_node``` status of the ```current_block_pointer```'s metadata. 
@@ -64,93 +69,78 @@ Mymalloc and Myfree project
                 In short, case 4 just combines the ```prev_block_pointer``` with ```current_block_pointer``` and ```next_block_pointer``` to achieve coalescing and updates the ```next_dot_next_block_pointer``` with the parameters of ```prev_block_pointer``` to maintain the implicit free list after coalescing has been performed. 
  
 
-#   Test Cases
+# Test Cases
 
-    Test 1
-In or first test case ```test_one``` we are allocating and immidieately freeing 120 times consequetively to see whether we can ```malloc(1)``` byte memory in the same space of the memory. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
+## Test 1 (Given Test Case Idea)
+In or first test case ```test_one``` we are allocate 1 byte and immediately free it 120 time. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
 
-    Test 2
+## Test 2 (Given Test Case Idea)
 
-In our second test case ```test_two``` we are first allocating ```malloc(1)``` byte memory 120 times and then free the allocated blocs until we deallocate all the allocations. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
-    Test 3
-In our third test case we are allocating size of ```malloc(120)``` chunk of memory and then immideately dealloating the memory until the alloation of 120 division of 2 all the way to the one bit of allocation ```malloc(1)```.We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory. We have viewed that the allocation of the block memory updates after the block of memory have been freed beforehand.
+In our second test case ```test_two``` we allocate 1 byte 120 times and then we free the allocated blocks. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
 
+## Test 3 (Custom Made Test Case Idea)
+In our third test case, we test the split case of mallocing. In the split case, if we malloc ```n bytes``` of data in ```k byte``` space then the ```k byte``` space ```(n + sizeof(metadata) < k)``` gets split into two blocks b_1 and b_2 where ```b_1``` has payload size of ```n bytes``` and ```b_2``` has payload size of ```k - n - sizeof(header)```.
 
-    Test 4
-1. In our fourth case ```test_four``` we are ```randomly``` allocating 1-byte chunks and storing into the fixed size memory. And randomly deallocating the chunks that is allocated beforehand.
-2. The remaining allocated blocks can be searched from the address of the pointers which is ```*metadata_to_block_address``` to check to see reamining blocks have been deallocated by the ```payload_address```
-3. In this case we can find that allocated chunks in the fixed size memory that is stored randomly and can be deallocated until the fixed size memory have been deallocated all the way. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory.
-    Test 5
-1. In our fifth case ```test_five``` we are testing the cases of ```coalescing``` when it has been deallocated in 3 different patterns.
-2. We initialized chosen appropriate memory size allocation ```random_mem``` to be allocated as 4-byte chunk. We check whether the given chunk allocation is a positive number and possible to store in a fixed size memory.
-3. In our first pattern we malloc a
-
-4. ## Terminology
-    1. ```sizeof(header)``` = size of the metadata
-    2. ```Implicit Free Lists```: It's linked-list where each node is of type ```struct header```  (See Metadata Structure).
+To test this theory out, we malloced  120 bytes and freed it immediately. Then we allocate 60 bytes into the free 120 byte space which will get split up into 60 bytes (allocated) and 120- 60 - 4 = 56 (sizeof(header) = 4).  Now we free the 60 byte block and allocate 30 bytes and so on. This will go on until we reach 1 byte block. We run this iteration 1000 times to get the work load time. 
 
 
+## Test 4 (Given Test Case Idea)
+1. In our fourth case ```test_four``` we are ```randomly``` allocating 1-byte chunks and storing into the fixed size array. And randomly deallocating the chunks that is allocated beforehand.
+2. The remaining allocated blocks that were not randomly freed are freed at the end to avoid memory leaks.
+3. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory.
+    
+## Test 5 (Custom Made Test Case Idea)
+
+In our fifth case ```test_five``` we are testing the 4 different cases of ```coalescing``` (see the free mechanism section for more details).
+
+Firstly we initialized the memory completely(4096 bytes) with 4 byte blocks. So every node in the implicit free list has the block size of 4 + 4 (metadata) bytes.
+
+Now to test out coalescing free the entire memory using various coalescing cases. So we developed 3 sub-tests to test out these ```coalescing``` cases. 
+
+## Sub-test 1
+Initially since the memory is completely allocated, each metadata node corrosponding to each block of memory has the ```free``` set as 0. So initially the implicit free list's statuses will look something like this: ```free_statuses = [0,0,0,0....,0,0]```.
+Note: 0 indicates that the block is allocated and 1 indicates that the block is free.
+
+So the first sub-test will choose the midpoint of ```free_statuses``` and setting it only to free by ```case 1```, so ```free_statuses = [0,0,0,0,0....1....0,0,0,0]```.
+
+Now we run a loop from midpoint_index - 1 to 0 to test our ```case 2``` of our coalescing. So after coalescing ```free_statuses=[1,0,0,0,0,0...0]```
+
+Then we run a loop from midpoint_index + 1 to ```length of free_statuses``` to test our ```case 3``` of our coalescing. So after coalescing ```free_statuses=[1]```.
+
+This sub-test just shows how coalescing works when ```case 1``` ```case 2``` condition and ```case 3``` condition is satisfied.
+
+## Sub-test 2
+So the second sub-test will alternatively set the blocks to free with ```spacing=1``` and ```free_statuses = [1,0,1,0,1...0,1,0,1]```.
+
+Now we run a loop from 0 to ```length of free_statuses``` to test our ```case 4``` of our coalescing. So after coalescing ```free_statuses=[1]```
+
+This sub-test just shows how coalescing works when ```case 1``` condition and ```case 4``` condition is satisfied.
+
+## Sub-test 3
+So the third sub-test will randomly set the blocks to free with ```spacing=rand() % 5 + 2```. The ```+2``` is added to avoid freeing adjacent blocks because if we don't do that it will defeat the purpose of case 1 coalescing which only works if the previous and next block are allocated and the current block is freed. The randomness spacing is introduced because we can show how all case 2, 3 and 4 work together at once. 
+
+After randomly setting the blocks to free with random spacing through only case 1, it will look like ```free_statuses = [1,0,0,1,0,1,0,0,0,1,0...,0,0,1]```.
+
+Now we run a loop from 0 to ```length of free_statuses``` to test our ```case 4``` of our coalescing. So after coalescing with case 2, case 3, case 4 (notice order of case won't matter due to random placement of the blocks) we get  ```free_statuses=[1]```.
+
+## Test Results
+```
+Time it took to run test_one: 0.000010 seconds
+Time it took to run test_two: 0.000261 seconds
+Time it took to run test_three: 0.000418 seconds
+Time it took to run test_four: 0.000083 seconds
+Time it took to run test_five pattern 1: 0.002394 seconds
+Time it took to run test_five pattern 2: 0.002329 seconds
+Time it took to run test_five pattern 3: 0.002333 seconds
+```
+
+## Terminology
+1. ```sizeof(header)``` = size of the metadata
+2. ```Implicit Free Lists```: It's linked-list where each node is of type ```struct header```  (have the capabilities to handle Metadata Structure).
+3. ```payload_size``` is defined as the bytes that the client has requested.
+4. ```block_size``` is defined as the ```payload_size``` + sizeof(header)
 
 
-
-
-
-
-
-
-```To run mymalloc```
-
-```make file=mymalloc && ./mymalloc```
-
-```To pull the code from git```
-1. ```git stash clear```
-2. ```git stash```
-3. ```git pull origin master```
-4. ```git stash pop```
-
-
-```To push the code to git```
-Make sure to pull any code from git before adding to git.
-
-1. ```git add .```
-2. ```git commit -m "<some-descriptive-message>"```
-3. ```git push origin master```
-
-
-Test plan for PA1
-
-1. How will I know my program is correct?
-2. What does it mean for my profgram to be correct?
-
-My programs should be free of bugs
-    -> true, but vague.
-
-Think about what should my code not do?
-
-malloc() should allocate memory
-free() should deallocate memory
-    -> better, but still too vague.
-
-
-If I allocate N bytes, a get back apointer, I should be able to write anything
-    to those bytes without interfering with mallocs data structure (metadata).
-
-    (b) any other allocated chunks
-
-If I try to allocate more mem than exists, then return NULL;
-
-If I allocate all of memory, I should not allocate more.
-
-if I allocate all of memory, then free it. I should be able to allocate more
-
-If I allocate all of memory in multiple chunks,
-and free everything in a different order.
-
-how can you detect metadata corruption?
--   Sanity check functions/ detect corrupt metadata(where possible)
--   shadow memory for testing
-
-
-10524-10549
-
-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
+# Steps to run 
+1. Just run ```make``` from current working directory.
+2. Just clean build files run ```make clean```.
