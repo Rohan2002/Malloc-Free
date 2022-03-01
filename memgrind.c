@@ -329,34 +329,56 @@ int main(int argv, char **argc)
     double time_five_three = 0;
 
     int trials = 1;
+    bool has_leaks = false;
 
     for (int i = 0; i < trials; i++)
     {
         time_one += test_one();
     }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 1? %s\n", has_leaks ? "Yes" : "No");
+    
     for (int i = 0; i < trials; i++)
     {
         time_two += test_two();
     }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 2? %s\n", has_leaks ? "Yes" : "No");
     for (int i = 0; i < trials; i++)
     {
         time_three += test_three();
     }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 3? %s\n", has_leaks ? "Yes" : "No");
     for (int i = 0; i < trials; i++)
     {
         time_four += test_four();
     }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 4? %s\n", has_leaks ? "Yes" : "No");
     for (int i = 0; i < trials; i++)
     {
         time_five_one += test_five(1);
+    }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 5 with pattern 1? %s\n", has_leaks ? "Yes" : "No");
+
+    for (int i = 0; i < trials; i++)
+    {
         time_five_two += test_five(2);
+    }
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 5 with pattern 2? %s\n", has_leaks ? "Yes" : "No");
+
+    for (int i = 0; i < trials; i++)
+    {
         time_five_three += test_five(3);
     }
-    bool has_leaks = program_is_free_of_memory_leaks();
+    has_leaks = program_is_free_of_memory_leaks();
+    printf("Program is free of memory leaks after test 5 with pattern 3? %s\n", has_leaks ? "Yes" : "No");
 
-    printf("Program is free of memory leaks? %s\n", has_leaks ? "Yes" : "No");
     print_implicit_free_list();
-
+    
     printf("Time it took to run test_one: %f seconds\n", time_one / trials);
     printf("Time it took to run test_two: %f seconds\n", time_two / trials);
     printf("Time it took to run test_three: %f seconds\n", time_three / trials);

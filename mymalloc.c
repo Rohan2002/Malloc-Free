@@ -242,10 +242,13 @@ void myfree(void *ptr, char *file, int line)
 
             // Update prev size of next to next block pointer to current block size and update prev_free status to free.
             // check if next next exists, if so update its prev values
-            void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
-            header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
-            metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
-            metadata_of_next_to_next_block_pointer->prev_free = metadata_of_current_block_pointer->free;
+            if (metadata_of_current_block_pointer->last_node != 1)
+            {
+                void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
+                header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+                metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
+                metadata_of_next_to_next_block_pointer->prev_free = metadata_of_current_block_pointer->free;
+            }
         }
         // Case 3: The previous block is free and the next block is allocated
         else if (prev_block_is_free && !next_block_is_free)
@@ -276,10 +279,13 @@ void myfree(void *ptr, char *file, int line)
             metadata_of_prev_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
             // update next to next prev values
-            void *next_to_next_block_pointer = prev_block_pointer + metadata_of_prev_block_pointer->block_size;
-            header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
-            metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
-            metadata_of_next_to_next_block_pointer->prev_free = metadata_of_prev_block_pointer->free;
+            if (metadata_of_prev_block_pointer->last_node != 1)
+            {
+                void *next_to_next_block_pointer = prev_block_pointer + metadata_of_prev_block_pointer->block_size;
+                header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+                metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_prev_block_pointer->block_size;
+                metadata_of_next_to_next_block_pointer->prev_free = metadata_of_prev_block_pointer->free;
+            }
         }
     }
     else if (prev_node_exists && !next_node_exists)
@@ -310,10 +316,13 @@ void myfree(void *ptr, char *file, int line)
             metadata_of_current_block_pointer->block_size += metadata_of_next_block_pointer->block_size;
             metadata_of_current_block_pointer->last_node = metadata_of_next_block_pointer->last_node;
 
-            void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
-            header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
-            metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
-            metadata_of_next_to_next_block_pointer->prev_free = metadata_of_current_block_pointer->free;
+            if (metadata_of_current_block_pointer->last_node != 1)
+            {
+                void *next_to_next_block_pointer = current_block_pointer + metadata_of_current_block_pointer->block_size;
+                header *metadata_of_next_to_next_block_pointer = next_to_next_block_pointer;
+                metadata_of_next_to_next_block_pointer->prev_block_size = metadata_of_current_block_pointer->block_size;
+                metadata_of_next_to_next_block_pointer->prev_free = metadata_of_current_block_pointer->free;
+            }
         }
     }
     else
