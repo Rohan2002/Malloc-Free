@@ -173,11 +173,11 @@ double test_four()
 double test_five(int pattern)
 {
     // coalescing test case.
-    int random_mem = 4; // rand() % MEM_SIZE;
+    int constant_block_byte_size = 4;
 
-    // malloc random_mem byte array chunks into 4096 byte space.
+    // malloc constant_block_byte_size byte array chunks into 4096 byte space.
 
-    int block_size = random_mem + sizeof(header);
+    int block_size = constant_block_byte_size + sizeof(header);
     int number_of_blocks = floor(MEM_SIZE / block_size);
 
     // printf("The number of blocks are %d\n", number_of_blocks);
@@ -193,12 +193,12 @@ double test_five(int pattern)
     int accumulated_malloc_size = 0;
 
     // This will store address in pointers array only until pointers[number_of_blocks - 2] because last block may have a higher block size
-    // than the previous blocks which have a block size of random_mem + sizeof(header).
+    // than the previous blocks which have a block size of constant_block_byte_size + sizeof(header).
 
     // However, if MEM_SIZE % block_size = 0 then pointers[0,1,2...number_of_blocks-1] will have addresses and every block size will be the same.
     while (1)
     {
-        void *malloc_p = (void *)malloc(random_mem);
+        void *malloc_p = (void *)malloc(constant_block_byte_size);
         if (malloc_p == NULL)
         {
             break;
@@ -220,7 +220,6 @@ double test_five(int pattern)
 
     struct timeval t1, t2;
     gettimeofday(&t1, NULL);
-
     // free the full memory.
     if (pattern == 1)
     {
@@ -241,16 +240,17 @@ double test_five(int pattern)
         // Case 2;
         for (int i = midpoint - 1; i >= 0; i--)
         {
-            if(pointers[i] != NULL){
+            if (pointers[i] != NULL)
+            {
                 free(pointers[i]);
                 pointers[i] = 0;
             }
-            
         }
         // Case 3;
         for (int i = midpoint + 1; i < number_of_blocks; i++)
         {
-            if(pointers[i] != NULL){
+            if (pointers[i] != NULL)
+            {
                 free(pointers[i]);
                 pointers[i] = 0;
             }
@@ -300,11 +300,12 @@ double test_five(int pattern)
         int i = 0;
         while (i < number_of_blocks)
         {
-            if(pointers[i] != NULL){
-            int spacing = (rand() % 5) + 2; // +2 to avoid adjacent random numbers
-            free(pointers[i]);
-            pointers[i] = 0;
-            i += spacing;
+            if (pointers[i] != NULL)
+            {
+                int spacing = (rand() % 5) + 2; // +2 to avoid adjacent random numbers
+                free(pointers[i]);
+                pointers[i] = 0;
+                i += spacing;
             }
         }
 
@@ -335,7 +336,7 @@ int main(int argv, char **argc)
     double time_five_two = 0;
     double time_five_three = 0;
 
-    int trials = 1;
+    int trials = 50;
     bool has_leaks = false;
 
     for (int i = 0; i < trials; i++)
@@ -344,7 +345,7 @@ int main(int argv, char **argc)
     }
     has_leaks = program_is_free_of_memory_leaks();
     printf("Program is free of memory leaks after test 1? %s\n", has_leaks ? "Yes" : "No");
-    
+
     for (int i = 0; i < trials; i++)
     {
         time_two += test_two();
