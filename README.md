@@ -39,18 +39,23 @@ Mymalloc and Myfree project
 #   Test Cases
 
     Test 1
-In or first test case ```test_one``` we are allocating and immidieately freeing 120 times consequetively to see whether we can ```malloc(1)``` byte memory in the same space of the memory.  We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space.
+In or first test case ```test_one``` we are allocating and immidieately freeing 120 times consequetively to see whether we can ```malloc(1)``` byte memory in the same space of the memory. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
 
     Test 2
 
-In our second test case ```test_two``` we are first allocating ```malloc(1)``` byte memory 120 times and then free the allocated blocs until we deallocate all the allocations. We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space.
-
+In our second test case ```test_two``` we are first allocating ```malloc(1)``` byte memory 120 times and then free the allocated blocs until we deallocate all the allocations. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
     Test 3
-In our third test case we are allocating size of ```malloc(120)``` chunk of memory and then immideately dealloating the memory until the alloation of 120 division of 2 all the way to the one bit of allocation ```malloc(1)```.We also run the code 50 times to see if there is any kind of error of double freeing or out of memory space. We have viewed that the allocation of the block memory updates after the block of memory have been freed beforehand.
+In our third test case we are allocating size of ```malloc(120)``` chunk of memory and then immideately dealloating the memory until the alloation of 120 division of 2 all the way to the one bit of allocation ```malloc(1)```.We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory. We have viewed that the allocation of the block memory updates after the block of memory have been freed beforehand.
 
 
-
-
+    Test 4
+1. In our fourth case ```test_four``` we are ```randomly``` allocating 1-byte chunks and storing into the fixed size memory. And randomly deallocating the chunks that is allocated beforehand.
+2. The remaining allocated blocks can be searched from the address of the pointers which is ```*metadata_to_block_address``` to check to see reamining blocks have been deallocated by the ```payload_address```
+3. In this case we can find that allocated chunks in the fixed size memory that is stored randomly and can be deallocated until the fixed size memory have been deallocated all the way. We run this code 50 times to find the average time of how long the task runs in our test case. We also see if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory.
+    Test 5
+1. In our fifth case ```test_five``` we are testing the cases of ```coalescing``` when it has been deallocated in 3 different patterns.
+2. We initialized chosen appropriate memory size allocation ```random_mem``` to be allocated as 4-byte chunk. We check whether the given chunk allocation is a positive number and possible to store in a fixed size memory.
+3. In our first pattern we malloc a
 
 4. ## Terminology
     1. ```sizeof(header)``` = size of the metadata
