@@ -241,14 +241,19 @@ double test_five(int pattern)
         // Case 2;
         for (int i = midpoint - 1; i >= 0; i--)
         {
-            free(pointers[i]);
-            pointers[i] = 0;
+            if(pointers[i] != NULL){
+                free(pointers[i]);
+                pointers[i] = 0;
+            }
+            
         }
         // Case 3;
         for (int i = midpoint + 1; i < number_of_blocks; i++)
         {
-            free(pointers[i]);
-            pointers[i] = 0;
+            if(pointers[i] != NULL){
+                free(pointers[i]);
+                pointers[i] = 0;
+            }
         }
     }
     else if (pattern == 2)
@@ -267,7 +272,7 @@ double test_five(int pattern)
         // Case1;
         for (int i = 0; i < number_of_blocks; i++)
         {
-            if (i % 2 == 0)
+            if (i % 2 == 0 && pointers[i] != NULL)
             {
                 free(pointers[i]);
                 pointers[i] = 0;
@@ -276,7 +281,7 @@ double test_five(int pattern)
         // Case4;
         for (int i = 0; i < number_of_blocks; i++)
         {
-            if (i % 2 == 1)
+            if (i % 2 == 1 && pointers[i] != NULL)
             {
                 free(pointers[i]);
                 pointers[i] = 0;
@@ -295,16 +300,18 @@ double test_five(int pattern)
         int i = 0;
         while (i < number_of_blocks)
         {
+            if(pointers[i] != NULL){
             int spacing = (rand() % 5) + 2; // +2 to avoid adjacent random numbers
             free(pointers[i]);
             pointers[i] = 0;
             i += spacing;
+            }
         }
 
         // Case2, Case3, Case4;
         for (int i = 0; i < number_of_blocks; i++)
         {
-            if (pointers[i] != 0)
+            if (pointers[i] != 0 || pointers[i] != NULL)
             {
                 free(pointers[i]);
                 pointers[i] = 0;
@@ -328,7 +335,7 @@ int main(int argv, char **argc)
     double time_five_two = 0;
     double time_five_three = 0;
 
-    int trials = 1;
+    int trials = 50;
 
     for (int i = 0; i < trials; i++)
     {

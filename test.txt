@@ -1,0 +1,22 @@
+gcc -std=c99 -Wall memgrind.c mymalloc.c -o mem.o && ./mem.o
+Program is free of memory leaks? Yes
+-------------------------------------
+CHUNK #1
+payload_size : 4092
+curr block size : 4096
+curr block is free : yes
+prev block size : 0
+prev block is free : yes
+is last node: : yes
+is first node: : yes
+Address of block: 0x565116b96020
+Address of payload: 0x565116b96024
+-------------------------------------
+-------------------------------------
+Time it took to run test_one: 0.000007 seconds
+Time it took to run test_two: 0.000098 seconds
+Time it took to run test_three: 0.000277 seconds
+Time it took to run test_four: 0.000043 seconds
+Time it took to run test_five pattern 1: 0.001732 seconds
+Time it took to run test_five pattern 2: 0.001745 seconds
+Time it took to run test_five pattern 3: 0.001743 seconds
