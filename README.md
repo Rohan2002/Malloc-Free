@@ -1,8 +1,7 @@
 Mymalloc and Myfree project
 
 ## Authors
-Rohan Deshpande: ryd4
-Selin Denise Altiparmak: sda81
+Rohan Deshpande, Selin Denise Altiparmak
 
 1. ## Metadata Structure: struct header
     1. Our metadata is a 4 byte or 32 bits block.
