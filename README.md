@@ -70,25 +70,25 @@ Rohan Deshpande, Selin Denise Altiparmak
 
 # Test Cases
 
-## Test 1 (Given Test Case Idea)
+## Test 1
 In or first test case ```test_one``` we are allocate 1 byte and immediately free it 120 time. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
 
-## Test 2 (Given Test Case Idea)
+## Test 2
 
 In our second test case ```test_two``` we allocate 1 byte 120 times and then we free the allocated blocks. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory
 
-## Test 3 (Custom Made Test Case Idea)
+## Test 3
 In our third test case, we test the split case of mallocing. In the split case, if we malloc ```n bytes``` of data in ```k byte``` space then the ```k byte``` space ```(n + sizeof(metadata) < k)``` gets split into two blocks b_1 and b_2 where ```b_1``` has payload size of ```n bytes``` and ```b_2``` has payload size of ```k - n - sizeof(header)```.
 
 To test this theory out, we malloced  120 bytes and freed it immediately. Then we allocate 60 bytes into the free 120 byte space which will get split up into 60 bytes (allocated) and 120- 60 - 4 = 56 (sizeof(header) = 4).  Now we free the 60 byte block and allocate 30 bytes and so on. This will go on until we reach 1 byte block. We run this iteration 1000 times to get the work load time. 
 
 
-## Test 4 (Given Test Case Idea)
+## Test 4
 1. In our fourth case ```test_four``` we are ```randomly``` allocating 1-byte chunks and storing into the fixed size array. And randomly deallocating the chunks that is allocated beforehand.
 2. The remaining allocated blocks that were not randomly freed are freed at the end to avoid memory leaks.
 3. We run this code 50 times to find the average time of how long the task runs in our test case. We also have the capabilities to handle if there any kind of error of double freeing or out of memory space allocation and deallocation in the fixed size memory.
     
-## Test 5 (Custom Made Test Case Idea)
+## Test 5
 
 In our fifth case ```test_five``` we are testing the 4 different cases of ```coalescing``` (see the free mechanism section for more details).
 
@@ -141,5 +141,5 @@ Time it took to run test_five pattern 3: 0.002333 seconds
 
 
 # Steps to run 
-1. Just run ```make``` from current working directory.
-2. Just clean build files run ```make clean```.
+1. Run ```make``` from current working directory to generate build files.
+2. To clean build files run ```make clean```.
